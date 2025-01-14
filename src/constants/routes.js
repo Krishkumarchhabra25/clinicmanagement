@@ -1,0 +1,8 @@
+export const ADMINLOGIN="/login"
+export const DASHBOARD="/"
+export const APPOINTMENTS ="/appointments"
+export const AVAILABILITY ="/availability"
+export const PASSWORDS ="/passwords"
+export const PATIENTRECORD= "/Patientrecord"
+export const PATIENTRECORDDETAILS="/pateintdetails/:id"
+export const PROFILESETTING = "/patientsetting"

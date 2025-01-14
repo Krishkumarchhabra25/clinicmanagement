@@ -1,0 +1,8 @@
+export {default as AdminLogin} from "./AdminLogin/AdminLogin"
+export {default as Appointments} from "./Appointments/Appointments"
+export {default as Availability} from "./Availability/Availability"
+export {default as Dashboard} from "./Dashboard/Dashboard"
+export {default as Password} from "./passwords/Password"
+export {default as PatientRecord} from "./PatientRecord/PatientRecord"
+export {default as ProfileSetting} from "./ProfileSettings/ProfileSetting"
+export {default as PatientRecordDetails} from "./PatientRecord/patientRecordDetails"
