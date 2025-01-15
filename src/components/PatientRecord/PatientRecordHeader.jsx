@@ -2,7 +2,7 @@ import * as React from "react";
 import MangeSearchIcon from "../../assets/manage_search.png";
 import FilterManageIcon from "../../assets/filter_list.png";
 import ExportIcon from "../../assets/file_export.png";
-
+import arrowDown from "../../assets/arrow_drop_down.png"
 const searchOptions = [
   { value: "name", text: "By Name (Default)" },
   { value: "id", text: "By Patient's ID" },
@@ -69,7 +69,7 @@ function PatientListHeader() {
           <input
             type="text"
             placeholder={getPlaceholderText()}
-            className="flex-1 shrink self-stretch my-auto basis-0 max-md:max-w-full border-none focus:outline-none"
+            className="flex-1 shrink  text-black self-stretch my-auto basis-0 max-md:max-w-full border-none focus:outline-none"
           />
           <img
             loading="lazy"
@@ -90,7 +90,7 @@ function PatientListHeader() {
                       value={option.value}
                       checked={selectedOption === option.value}
                       onChange={() => handleOptionChange(option.value)}
-                      className="cursor-pointer appearance-none w-4 h-4 rounded-full border border-gray-400 checked:bg-orange-500 checked:border-orange-500 focus:ring-2 focus:ring-orange-500"
+                      className="cursor-pointer appearance-none w-4 h-4 text-black rounded-full border border-gray-400 checked:bg-orange-500 checked:border-orange-500 focus:ring-2 focus:ring-orange-500"
                     />
                     <label htmlFor={`option-${option.value}`} className="cursor-pointer text-sm">
                       {option.text}
@@ -108,6 +108,7 @@ function PatientListHeader() {
           className="flex gap-1.5 justify-center items-center self-stretch px-4 py-2 my-auto bg-white rounded-3xl border border-solid border-stone-300"
         >
           <span>Sort By</span>
+          <img src={arrowDown} alt="arrow down" width={18} height={18}/>
         </button>
         {isSortByVisible && (
           <div

@@ -19,7 +19,7 @@ export function PatientInfoFieldDetails({ isEditMode }) {
 
   const renderInputField = (label, value, setter, placeholder, type = "text", icon = null) => (
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
-      <label className="text-gray-600 font-medium mb-2 pl-2">{label}</label>
+      <label className="text-gray-600 font-medium mb-1 pl-2">{label}</label>
       <div
         className={`relative w-full transition-all duration-300 ${
           isEditMode ? "animate-fadeIn" : "animate-fadeOut"
@@ -58,7 +58,7 @@ export function PatientInfoFieldDetails({ isEditMode }) {
   
 
   return (
-    <div className="flex flex-wrap gap-10 w-full">
+    <div className="flex flex-wrap gap-7 w-full">
       {/* Patient Name */}
       {renderInputField("Name", patientName, setPatientName, "Enter patient name")}
 

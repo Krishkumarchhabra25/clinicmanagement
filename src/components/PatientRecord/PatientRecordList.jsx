@@ -9,20 +9,23 @@ import { useNavigate } from "react-router-dom";
   
 function PatientList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleRowClick = (id) => {
-    navigate(`/pateintdetails/${id}`);
-  };
 
-  const handleEditClick = (e) => {
-    e.stopPropagation(); // Prevents the click from triggering row click
-    openModal(); // Opens the modal
-  };
 
+  const handleRowClick = (id, isEditMode = false) => {
+    navigate(`/pateintdetails/${id}`, { state: { isEditMode } });
+  };
+  
+  const handleEditClick = (e, id) => {
+    e.stopPropagation(); // Prevents triggering row click
+    handleRowClick(id, true); // Navigate with isEditMode as true
+  };
+  
   return (
     <div>
       <div className="flex flex-row items-center justify-between px-4 pb-4">
@@ -69,7 +72,7 @@ function PatientList() {
                 </thead>
                 <tbody>
                   {patients.map((patient) => (
-                    <tr key={patient.id} className="space-y-9 p-4" onClick={() => handleRowClick(patient.id)}>
+                    <tr key={patient.id} className="space-y-9 p-4">
                       <td className="py-[7px] px-[5px] border border-zinc-100">{patient.name}</td>
                       <td className="py-[7px] px-[5px] border border-zinc-100">{patient.mobile}</td>
                       <td className="py-[7px] px-[5px] border border-zinc-100">{patient.email}</td>
@@ -77,7 +80,7 @@ function PatientList() {
                       <td className="py-[7px] px-[5px] border border-zinc-100">{patient.villageDetails}</td>
                       <td className="py-[7px] px-[5px] border border-zinc-100">
                         <div className="flex gap-4 justify-center">
-                          <button aria-label="Edit patient" onClick={handleEditClick}>
+                          <button aria-label="Edit patient"  onClick={(e) => handleEditClick(e, patient.id)}>
                             <img
                               loading="lazy"
                               src={patient.editIcon}

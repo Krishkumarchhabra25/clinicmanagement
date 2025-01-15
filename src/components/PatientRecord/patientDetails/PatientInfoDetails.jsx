@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { PatientHeader } from "./PatientHeaderDetails";
 import { PatientInfoFieldDetails } from "./PatientInputFiledDetails";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function PatientInfoDetails() {
   const [activeTab, setActiveTab] = useState("Patient Information");
-  const [isEditMode, setIsEditMode] = useState(false);
+  const { state } = useLocation();
+  const [isEditMode, setIsEditMode] = useState(state?.isEditMode || false);
+
   const navigate = useNavigate();
 
   const toggleEditMode = () => {

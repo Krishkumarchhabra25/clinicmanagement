@@ -1,16 +1,16 @@
 
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
-import AdminProfileSetting from './AdminProfileSetting';
+import  { useState } from 'react'
+
+import {AdminProfileSetting} from './AdminProfileSetting';
 import SupportProfileSetting from './SupportProfileSetting';
 import ClinicProfileSetting from './ClinicProfileSetting';
 
 export default function Profile() {
     const [activeTab, setActiveTab] = useState("Admin Profile");
-    const [isEditMode, setIsEditMode] = useState(false);
-    const navigate = useNavigate();
+/*     const [isEditMode, setIsEditMode] = useState(false);
+    const navigate = useNavigate(); */
   
-    const toggleEditMode = () => {
+/*     const toggleEditMode = () => {
       setIsEditMode(!isEditMode);
     };
   
@@ -22,7 +22,7 @@ export default function Profile() {
       // Save logic here
       console.log("Changes saved");
       setIsEditMode(false);
-    };
+    }; */
   
     return (
       <div>
