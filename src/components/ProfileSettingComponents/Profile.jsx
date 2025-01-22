@@ -35,7 +35,7 @@ export default function Profile() {
           </h1>
         </div>
   
-        <div className="flex overflow-hidden flex-col  bg-white rounded-3xl max-md:pb-24">
+        <div className="flex overflow-hidden flex-col  bg-white rounded-t-3xl max-md:pb-24">
          
   
           <div className="flex gap-10 mt-12 max-w-full text-lg font-medium w-full px-10 max-md:mt-10">
@@ -72,7 +72,7 @@ export default function Profile() {
         
           </div>
           </div>
-          <div className="flex overflow-hidden flex-col mt-2  bg-white rounded-3xl max-md:pb-24">
+          <div className="flex overflow-hidden flex-col mt-2  bg-white rounded-b-3xl max-md:pb-24">
           <div className="mt-10 w-full px-10 max-md:max-w-full">
             {activeTab === "Admin Profile" && (
               <div className="flex flex-col gap-6 w-full max-md:max-w-full">
