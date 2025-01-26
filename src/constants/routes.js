@@ -1,4 +1,5 @@
 export const ADMINLOGIN="/login"
+export const ADMINCHNAGEPASSWORD="/changepassword"
 export const DASHBOARD="/"
 export const APPOINTMENTS ="/appointments"
 export const AVAILABILITY ="/availability"

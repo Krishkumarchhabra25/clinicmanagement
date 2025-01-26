@@ -1,12 +1,11 @@
 import Pagination from "./Pagination";
 import PatientListHeader from "./PatientRecordHeader";
-import PatientListItem from "./PatientRecordItem";
-import NotificationIcon from "../../assets/notification.png"
 import { useState } from "react";
 import { patients } from "../../dummydata/patientDataList";
 import cancelIcon from "../../assets/cancel.png"
 import { useNavigate } from "react-router-dom";
-  
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function PatientList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -121,7 +120,6 @@ function PatientList() {
 
 
 
-
 const PatientModal = ({ isOpen, onClose }) => {
   const [patientName, setPatientName] = useState("");
   const [patientNumber, setPatientNumber] = useState("");
@@ -130,6 +128,8 @@ const PatientModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [dob, setDob] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [isSaving, setIsSaving] = useState(false);  // New state to track saving status
+  const [hasAttemptedSave, setHasAttemptedSave] = useState(false); // Track if user has attempted to save
 
   if (!isOpen) return null;
 
@@ -137,19 +137,63 @@ const PatientModal = ({ isOpen, onClose }) => {
     setter("");
   };
 
+  const validateFields = () => {
+    if (!patientName) return "Patient Name is required.";
+    if (!patientNumber) return "Patient Number is required.";
+    if (!/^\d+$/.test(patientNumber)) return "Patient Number must be numeric.";
+    if (!gender) return "Gender is required.";
+    if (!villageDetails) return "Village Details are required.";
+    if (villageDetails.length > 60) return "Village Details can be a maximum of 60 characters.";
+    if (!email) return "Email is required.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Invalid email address.";
+    if (!dob) return "Date of Birth is required.";
+    if (remarks.length > 30) return "Remarks can be a maximum of 30 characters.";
+    return null; // No errors
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // If already saving, prevent the second click
+    if (isSaving) return;
+
+    // Trigger form validation only if save has not been attempted before
+    if (!hasAttemptedSave) {
+      const error = validateFields();
+      if (error) {
+        toast.error(error); // Show error message via toast
+        setHasAttemptedSave(true); // Mark as attempted save to prevent multiple errors
+        return;
+      }
+    }
+
+    // Proceed with saving the data
+    setIsSaving(true);  // Set saving state to true when the process starts
+    toast.success("Patient details saved successfully!");
+
+    // Simulate a delay for the save operation (e.g., API call)
+    setTimeout(() => {
+      setIsSaving(false);  // Reset saving state after a delay
+      setHasAttemptedSave(false); // Allow the user to try saving again
+      onClose();  // Close the modal
+    }, 2000);  // Adjust time as needed (e.g., 2 seconds)
+  };
   return (
     <div className="fixed inset-0 z-50 flex justify-end items-center">
+      {/* Toast Container */}
+      <ToastContainer />
+      
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-black bg-opacity-50"
         onClick={onClose}
       ></div>
+
       {/* Modal */}
-      <div className="relative w-[400px] h-[calc(100%-40px)] bg-white rounded-l-3xl rounded-r-3xl shadow-lg p-6 overflow-y-auto mr-5 mt-5 mb-5"       style={{
+      <div style={{
         scrollbarWidth: "none", // Firefox
         msOverflowStyle: "none", // IE and Edge
-      }}>
-      
+      }} className="relative w-[400px] h-[calc(100%-40px)] bg-white rounded-l-3xl rounded-r-3xl shadow-lg p-6 overflow-y-auto mr-5 mt-5 mb-5">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
@@ -157,7 +201,7 @@ const PatientModal = ({ isOpen, onClose }) => {
           ✕
         </button>
         <h2 className="text-2xl font-semibold text-[#FF7B54]">Add Patient</h2>
-        <form className="mt-4">
+        <form className="mt-4" onSubmit={handleSubmit}>
           <div className="mb-4 relative">
             <label className="block text-gray-600 font-medium mb-2">
               Patient Name
@@ -170,7 +214,6 @@ const PatientModal = ({ isOpen, onClose }) => {
               placeholder="Enter patient name"
             />
             {patientName && (
-              
               <button
                 type="button"
                 onClick={() => handleClearInput(setPatientName)}
@@ -197,7 +240,7 @@ const PatientModal = ({ isOpen, onClose }) => {
                 onClick={() => handleClearInput(setPatientNumber)}
                 className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
               >
-              <img src={cancelIcon} alt="cancel" />
+                <img src={cancelIcon} alt="cancel" />
               </button>
             )}
           </div>
@@ -222,7 +265,7 @@ const PatientModal = ({ isOpen, onClose }) => {
               value={villageDetails}
               onChange={(e) => setVillageDetails(e.target.value)}
               className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
-              placeholder="Enter village details"
+              placeholder="Enter village details (max 60 characters)"
             />
             {villageDetails && (
               <button
@@ -230,7 +273,7 @@ const PatientModal = ({ isOpen, onClose }) => {
                 onClick={() => handleClearInput(setVillageDetails)}
                 className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
               >
-              <img src={cancelIcon} alt="cancel" />
+                <img src={cancelIcon} alt="cancel" />
               </button>
             )}
           </div>
@@ -249,7 +292,7 @@ const PatientModal = ({ isOpen, onClose }) => {
                 onClick={() => handleClearInput(setEmail)}
                 className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
               >
-              <img src={cancelIcon} alt="cancel" />
+                <img src={cancelIcon} alt="cancel" />
               </button>
             )}
           </div>
@@ -273,7 +316,7 @@ const PatientModal = ({ isOpen, onClose }) => {
               value={remarks}
               onChange={(e) => setRemarks(e.target.value)}
               className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
-              placeholder="Enter any remarks"
+              placeholder="Enter any remarks (max 30 characters)"
             />
             {remarks && (
               <button
@@ -281,7 +324,7 @@ const PatientModal = ({ isOpen, onClose }) => {
                 onClick={() => handleClearInput(setRemarks)}
                 className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
               >
-              <img src={cancelIcon} alt="cancel" />
+                <img src={cancelIcon} alt="cancel" />
               </button>
             )}
           </div>
@@ -289,7 +332,7 @@ const PatientModal = ({ isOpen, onClose }) => {
             type="submit"
             className="w-full bg-[#FF7B54] text-white p-3 rounded-md hover:bg-[#e76a48] transition"
           >
-            Save Patient
+          {isSaving ? "Saving..." : "Save Patient"}  {/* Show saving state */}
           </button>
         </form>
       </div>

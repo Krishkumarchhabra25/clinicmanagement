@@ -8,6 +8,7 @@ const AppRouter = () => {
     <Router>
        <Routes>
        <Route path={routesKey.ADMINLOGIN} element={<pages.AdminLogin />  } />
+       <Route path={routesKey.ADMINCHNAGEPASSWORD} element={<pages.AdminChangePassword />  } />
         <Route path={routesKey.DASHBOARD} element={<pages.Dashboard />} />
         <Route path={routesKey.AVAILABILITY} element={<pages.Availability />} />
         <Route path={routesKey.APPOINTMENTS} element={<pages.Appointments />} />

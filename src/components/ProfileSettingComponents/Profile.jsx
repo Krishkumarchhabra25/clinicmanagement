@@ -7,22 +7,7 @@ import ClinicProfileSetting from './ClinicProfileSetting';
 
 export default function Profile() {
     const [activeTab, setActiveTab] = useState("Admin Profile");
-/*     const [isEditMode, setIsEditMode] = useState(false);
-    const navigate = useNavigate(); */
-  
-/*     const toggleEditMode = () => {
-      setIsEditMode(!isEditMode);
-    };
-  
-    const cancelEditMode = () => {
-      setIsEditMode(false);
-    };
-  
-    const saveChanges = () => {
-      // Save logic here
-      console.log("Changes saved");
-      setIsEditMode(false);
-    }; */
+
   
     return (
       <div>
