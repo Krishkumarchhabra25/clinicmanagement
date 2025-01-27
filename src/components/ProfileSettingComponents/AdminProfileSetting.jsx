@@ -1,156 +1,108 @@
-
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import cancelIcon from "../../assets/cancel.png";
-import messageIcon from "../../assets/message (1).png";
-import CallIcon from "../../assets/message (2).png";
-
-
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // For toast notifications
+import "react-toastify/dist/ReactToastify.css";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function AdminProfileSetting() {
-  const [patientName, setPatientName] = useState("");
-  const [patientNumber, setPatientNumber] = useState("");
-  const [gender, setGender] = useState("");
-  const [age, setAge] = useState("");
-  const [villageDetails, setVillageDetails] = useState("");
-  const [email, setEmail] = useState("");
-  const [dob, setDob] = useState("");
-  const [registrationDate, setRegistrationDate] = useState("");
+  const { state } = useLocation();
+  const [isEditMode, setIsEditMode] = useState(state?.isEditMode || false);
+  const navigate = useNavigate();
 
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    patientName: "",
+    patientNumber: "",
+    gender: "",
+    age: "",
+    villageDetails: "",
+    email: "",
+    dob: "",
+    registrationDate: "",
+  });
 
-  // Validation function
-  const validateFields = () => {
-    if (!patientName) {
-      toast.error("Patient name is required.");
-      return false;
-    }
-
-    if (!patientNumber) {
-      toast.error("Patient number is required.");
-      return false;
-    } else if (!/^\d+$/.test(patientNumber)) {
-      toast.error("Patient number must be numeric.");
-      return false;
-    }
-
-    if (!gender) {
-      toast.error("Gender is required.");
-      return false;
-    }
-
-    if (!age) {
-      toast.error("Age is required.");
-      return false;
-    } else if (!/^\d+$/.test(age)) {
-      toast.error("Age must be numeric.");
-      return false;
-    }
-
-    if (villageDetails.length > 60) {
-      toast.error("Village details can be a maximum of 60 characters.");
-      return false;
-    }
-
-    if (!email) {
-      toast.error("Email is required.");
-      return false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Invalid email address.");
-      return false;
-    }
-
-    if (!dob) {
-      toast.error("Date of birth is required.");
-      return false;
-    }
-
-    if (!registrationDate) {
-      toast.error("Registration date is required.");
-      return false;
-    }
-
-    // If all validations pass
-    return true;
+  // Generic function for handling input changes
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // Reset all input fields
-  const handleClearAllFields = () => {
-    setPatientName("");
-    setPatientNumber("");
-    setGender("");
-    setAge("");
-    setVillageDetails("");
-    setEmail("");
-    setDob("");
-    setRegistrationDate("");
-    toast.info("All fields have been cleared.");
+  // Generic function for canceling individual fields
+  const handleCancelField = (field) => {
+    handleInputChange(field, "");
   };
 
-  // Save the changes after validation
   const handleSave = () => {
     if (validateFields()) {
-      toast.success("Patient information saved successfully!");
-      console.log({
-        patientName,
-        patientNumber,
-        gender,
-        age,
-        villageDetails,
-        email,
-        dob,
-        registrationDate,
-      });
       setIsEditMode(false);
+      toast.success("Patient information saved successfully!");
     }
   };
 
-  // Toggle Edit Mode
-  const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
+  // Consolidated validation for all fields
+  const validateFields = () => {
+    const validations = [
+      { field: 'patientName', check: !formData.patientName, message: "Patient name is required." },
+      { field: 'patientNumber', check: !/^\d+$/.test(formData.patientNumber), message: "Patient number must be numeric." },
+      { field: 'age', check: !formData.age || !/^\d+$/.test(formData.age), message: "Age must be numeric." },
+      { field: 'email', check: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email), message: "Invalid email address." }
+    ];
+
+    let isValid = true;
+    validations.forEach(({ check, message }) => {
+      if (check) {
+        toast.error(message);
+        isValid = false;
+      }
+    });
+    return isValid;
   };
 
-  // Cancel Edit Mode
-  const cancelEdit = () => {
-    setIsEditMode(false);
-    // Optionally reset the form fields if needed
-    handleClearAllFields();
-  };
-
-  const renderInputField = (label, value, setter, placeholder, type = "text") => (
+  // Render function for input fields, including dropdown for gender
+  const renderField = (label, field, placeholder, type = "text") => (
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
       <label className="text-gray-600 font-medium mb-1 pl-2">{label}</label>
       <div className="relative w-full">
         {isEditMode ? (
-          <input
-            type={type}
-            value={value}
-            onChange={(e) => setter(e.target.value)}
-            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-            placeholder={placeholder}
-          />
+          type === "select" ? (
+            <select
+              value={formData[field]}
+              onChange={(e) => handleInputChange(field, e.target.value)}
+              className="w-full p-3 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            >
+              <option value="">Select {label}</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          ) : (
+            <input
+              type={type}
+              value={formData[field]}
+              onChange={(e) => handleInputChange(field, e.target.value)}
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+              placeholder={placeholder}
+            />
+          )
         ) : (
           <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px]">
-            {value || "N/A"}
+            {formData[field] || "N/A"}
           </div>
         )}
-              {value && isEditMode && (
-                  <button
-                    type="button"
-                  
-                    className="absolute top-1/2 right-4 transform -translate-y-1/2 text-black"
-                  >
-                    <img
-                      src={cancelIcon} // Replace with your cancel icon path
-                      alt="cancel"
-                      className="w-5 h-5 object-contain"
-                    />
-                  </button>
-                )}
+        {formData[field] && isEditMode && type !== "select" && (
+          <button
+            type="button"
+            onClick={() => handleCancelField(field)}
+            className="absolute top-1/2 right-4 transform -translate-y-1/2 text-black"
+          >
+            <img src={cancelIcon} alt="cancel" className="w-5 h-5 object-contain" />
+          </button>
+        )}
       </div>
     </div>
   );
+
+  const toggleEditMode = () => {
+    setIsEditMode(prev => !prev);
+  };
 
   return (
     <div>
@@ -186,7 +138,7 @@ export function AdminProfileSetting() {
             <>
               <button
                 className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-                onClick={cancelEdit}
+                onClick={() => setIsEditMode(false)}
               >
                 Cancel
               </button>
@@ -200,7 +152,7 @@ export function AdminProfileSetting() {
           ) : (
             <button
               aria-label="Edit Personal Information"
-              className="p-2 rounded-full hover:bg-gray-200 transition"
+              className="px-2.5 py-3 border border-solid border-stone-300 rounded w-12"
               onClick={toggleEditMode}
             >
               <img
@@ -215,13 +167,14 @@ export function AdminProfileSetting() {
 
       {/* Input Fields */}
       <div className="flex flex-wrap gap-7 w-full">
-        {renderInputField("Name", patientName, setPatientName, "Enter patient name")}
-        {renderInputField("Phone Number", patientNumber, setPatientNumber, "Enter patient number", "tel")}
-        {renderInputField("Email", email, setEmail, "Enter email", "email")}
-        {renderInputField("Age", age, setAge, "Enter age", "number")}
-        {renderInputField("Village Details", villageDetails, setVillageDetails, "Enter village details")}
-        {renderInputField("Date of Birth", dob, setDob, "", "date")}
-        {renderInputField("Registration Date", registrationDate, setRegistrationDate, "", "date")}
+        {renderField("Name", "patientName", "Enter patient name")}
+        {renderField("Phone Number", "patientNumber", "Enter patient number", "tel")}
+        {renderField("Age", "age", "Enter age", "number")}
+        {renderField("Email", "email", "Enter email", "email")}
+        {renderField("Village Details", "villageDetails", "Enter village details")}
+        {renderField("Date of Birth", "dob", "", "date")}
+        {renderField("Registration Date", "registrationDate", "", "date")}
+        {renderField("Gender", "gender", "", "select")}
       </div>
     </div>
   );

@@ -1,104 +1,118 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import cancelIcon from "../../assets/cancel.png";
+import { useLocation } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+
 const ClinicProfileSetting = () => {
-  // States for Basic Information
-  const [clinicName, setClinicName] = useState("");
-  const [tagline, setTagline] = useState("");
-  const [companyLogo, setCompanyLogo] = useState("");
+  const { state } = useLocation();
+  const [editModes, setEditModes] = useState({
+    basicInfo: state?.isEditMode || false,
+    addressInfo: state?.isEditMode || false,
+  });
 
-  // States for Address Details
-  const [streetAddress1, setStreetAddress1] = useState("");
-  const [streetAddress2, setStreetAddress2] = useState("");
-  const [city, setCity] = useState("");
-  const [postalCode, setPostalCode] = useState("");
-  const [state, setState] = useState("");
-  const [country, setCountry] = useState("");
+  const [formData, setFormData] = useState({
+    basicInfo: {
+      clinicName: "",
+      tagline: "",
+      companyLogo: ""
+    },
+    addressInfo: {
+      streetAddress1: "",
+      streetAddress2: "",
+      city: "",
+      postalCode: "",
+      state: "",
+      country: ""
+    }
+  });
 
-  const [isEditModeBasic, setIsEditModeBasic] = useState(false);
-  const [isEditModeAddress, setIsEditModeAddress] = useState(false);
-
-  const handleClearInput = (setter) => {
-    setter("");
+  // Generic function for handling input changes
+  const handleInputChange = (section, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
+    }));
   };
 
-  const toggleEditMode = () => {
-    setIsEditModeBasic(!isEditModeBasic);
-  };
-  const toggleEditModeAddress = () => {
-    setIsEditModeAddress(!isEditModeAddress);
-  };
-
-  const cancelEdit = () => {
-    setIsEditModeBasic(false);
-  };
-  const cancelEditAddreess = () => {
-    setIsEditModeAddress(false);
+  // Validation for basic information
+  const validateBasicInfo = () => {
+    let isValid = true;
+    ['clinicName', 'tagline', 'companyLogo'].forEach(field => {
+      if (!formData.basicInfo[field]) {
+        toast.error(`${field.replace(/([A-Z])/g, ' $1').trim()} is required.`);
+        isValid = false;
+      }
+    });
+    return isValid;
   };
 
-  const saveChanges = () => {
-    setIsEditModeBasic(false);
-    // Optionally handle save logic here (e.g., API call)
-  };
-  const saveChangesAddreess = () => {
-    setIsEditModeAddress(false);
-    // Optionally handle save logic here (e.g., API call)
+  // Validation for address information
+  const validateAddressInfo = () => {
+    let isValid = true;
+    Object.keys(formData.addressInfo).forEach(field => {
+      if (!formData.addressInfo[field]) {
+        toast.error(`${field.replace(/([A-Z])/g, ' $1').trim()} is required.`);
+        isValid = false;
+      }
+    });
+    return isValid;
   };
 
-  // Render input field for Basic Information
-  const renderBasicInfoField = (label, value, setter, placeholder, type = "text", icon = null) => (
+  // Generic save handler
+  const handleSave = (section) => {
+    const validators = {
+      'basicInfo': validateBasicInfo,
+      'addressInfo': validateAddressInfo
+    };
+    
+    if (validators[section]()) {
+      setEditModes(prev => ({ ...prev, [section]: false }));
+      toast.success(`${section.replace(/([A-Z])/g, ' $1').trim()} saved successfully!`);
+    }
+  };
+
+  // Generic cancel handler
+  const handleCancel = (section) => {
+    setEditModes(prev => ({ ...prev, [section]: false }));
+  };
+
+  // Generic field cancel handler
+  const handleFieldCancel = (section, field) => {
+    handleInputChange(section, field, "");
+  };
+
+  // Render input field for both sections
+  const renderField = (section, label, field, placeholder, type = "text") => (
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
-      <label className="text-gray-600 font-medium mb-1 pl-2">{label}</label>
-      <div className={`relative w-full transition-all duration-300`}>
-        {isEditModeBasic ? (
-          <div className="relative">
-            <input
-              type={type}
-              value={value}
-              onChange={(e) => setter(e.target.value)}
-              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-              placeholder={placeholder}
-            />
-            {value && (
-              <button
-                type="button"
-                onClick={() => handleClearInput(setter)}
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 text-black flex items-center justify-center"
-              >
-                <img
-                  src={cancelIcon}
-                  alt="Clear"
-                  className="w-5 h-5 object-contain"
-                />
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px] flex justify-between items-center">
-            <div className="flex-1">{value || "N/A"}</div>
-            {icon && <img src={icon} alt={label} className="w-6 h-6 ml-2" />}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  // Render input field for Address Details
-  const renderAddressField = (label, value, setter, placeholder, type = "text") => (
-    <div className="flex flex-col items-start w-full md:w-[45%] relative">
-      <label className="text-gray-600 font-medium mb-1 pl-2">{label}</label>
-      <div className={`relative w-full transition-all duration-300`}>
-        {isEditModeAddress ? (
+      <label className="text-gray-600 font-medium mb-1 pl-2" aria-label={label}>{label}</label>
+      <div className="relative w-full">
+        {editModes[section] ? (
           <input
             type={type}
-            value={value}
-            onChange={(e) => setter(e.target.value)}
-            className="w-full p-3 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            value={formData[section][field]}
+            onChange={(e) => handleInputChange(section, field, e.target.value)}
+            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
             placeholder={placeholder}
+            aria-label={`Edit ${label}`}
           />
         ) : (
-          <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px]">
-            {value || "N/A"}
+          <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px]" 
+               aria-label={`${label}: ${formData[section][field] || 'Not Provided'}`}>
+            {formData[section][field] || "N/A"}
           </div>
+        )}
+        {formData[section][field] && editModes[section] && (
+          <button
+            type="button"
+            onClick={() => handleFieldCancel(section, field)}
+            className="absolute top-1/2 right-4 transform -translate-y-1/2 text-black"
+            aria-label={`Clear ${label}`}
+          >
+            <img src={cancelIcon} alt="cancel" className="w-5 h-5 object-contain" />
+          </button>
         )}
       </div>
     </div>
@@ -113,17 +127,17 @@ const ClinicProfileSetting = () => {
           <h1 className="text-[24px] text-[#FF7B54] mx-2">Basic Information</h1>
         </div>
         <div className="flex items-center gap-2">
-          {isEditModeBasic ? (
+          {editModes.basicInfo ? (
             <>
               <button
                 className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-                onClick={cancelEdit}
+                onClick={() => handleCancel('basicInfo')}
               >
                 Cancel
               </button>
               <button
                 className="px-4 py-2 bg-[#FF7B54] text-white rounded-lg hover:bg-[#e06a45] transition"
-                onClick={saveChanges}
+                onClick={() => handleSave('basicInfo')}
               >
                 Save
               </button>
@@ -132,7 +146,7 @@ const ClinicProfileSetting = () => {
             <button
               aria-label="Edit Basic Information"
               className="p-2 rounded-full hover:bg-gray-200 transition"
-              onClick={toggleEditMode}
+              onClick={() => setEditModes(prev => ({ ...prev, basicInfo: true }))}
             >
               <img
                 src="https://cdn.builder.io/api/v1/image/assets/TEMP/27b25ccc7cf50ff795844cd0bf3810da438b9aba9011a555a2d83af0274ad469"
@@ -145,9 +159,9 @@ const ClinicProfileSetting = () => {
       </div>
 
       <div className="flex flex-wrap gap-7 w-full">
-        {renderBasicInfoField("Clinic Name", clinicName, setClinicName, "Enter clinic name")}
-        {renderBasicInfoField("Tagline", tagline, setTagline, "Enter tagline")}
-        {renderBasicInfoField("Company Logo", companyLogo, setCompanyLogo, "Enter company logo URL")}
+        {renderField('basicInfo', "Clinic Name", "clinicName", "Enter clinic name")}
+        {renderField('basicInfo', "Tagline", "tagline", "Enter tagline")}
+        {renderField('basicInfo', "Company Logo", "companyLogo", "Enter company logo URL")}
       </div>
 
       {/* Address Details */}
@@ -157,17 +171,17 @@ const ClinicProfileSetting = () => {
           <h1 className="text-[24px] text-[#FF7B54] mx-2">Address Details</h1>
         </div>
         <div className="flex items-center gap-2">
-          {isEditModeAddress ? (
+          {editModes.addressInfo ? (
             <>
               <button
                 className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-                onClick={cancelEditAddreess}
+                onClick={() => handleCancel('addressInfo')}
               >
                 Cancel
               </button>
               <button
                 className="px-4 py-2 bg-[#FF7B54] text-white rounded-lg hover:bg-[#e06a45] transition"
-                onClick={saveChangesAddreess}
+                onClick={() => handleSave('addressInfo')}
               >
                 Save
               </button>
@@ -176,7 +190,7 @@ const ClinicProfileSetting = () => {
             <button
               aria-label="Edit Address Details"
               className="p-2 rounded-full hover:bg-gray-200 transition"
-              onClick={toggleEditModeAddress}
+              onClick={() => setEditModes(prev => ({ ...prev, addressInfo: true }))}
             >
               <img
                 src="https://cdn.builder.io/api/v1/image/assets/TEMP/27b25ccc7cf50ff795844cd0bf3810da438b9aba9011a555a2d83af0274ad469"
@@ -189,16 +203,17 @@ const ClinicProfileSetting = () => {
       </div>
 
       <div className="flex flex-wrap gap-7 w-full">
-        {renderAddressField("Street Address-1", streetAddress1, setStreetAddress1, "Enter street address 1")}
-        {renderAddressField("Street Address-2", streetAddress2, setStreetAddress2, "Enter street address 2")}
-        {renderAddressField("City/Town", city, setCity, "Enter city")}
-        {renderAddressField("Postal/Zip Code", postalCode, setPostalCode, "Enter postal/zip code", "number")}
-        {renderAddressField("State", state, setState, "Enter state")}
-        {renderAddressField("Country", country, setCountry, "Enter country")}
+        {renderField('addressInfo', "Street Address-1", "streetAddress1", "Enter street address 1")}
+        {renderField('addressInfo', "Street Address-2", "streetAddress2", "Enter street address 2")}
+        {renderField('addressInfo', "City/Town", "city", "Enter city")}
+        {renderField('addressInfo', "Postal/Zip Code", "postalCode", "Enter postal/zip code", "number")}
+        {renderField('addressInfo', "State", "state", "Enter state")}
+        {renderField('addressInfo', "Country", "country", "Enter country")}
+      </div>
 
-     </div>
+      <ToastContainer />
     </div>
-  )
+  );
 }
 
-export default ClinicProfileSetting
+export default ClinicProfileSetting;
