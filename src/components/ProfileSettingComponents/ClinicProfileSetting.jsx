@@ -26,7 +26,6 @@ const ClinicProfileSetting = () => {
     }
   });
 
-  // Generic function for handling input changes
   const handleInputChange = (section, field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -37,31 +36,28 @@ const ClinicProfileSetting = () => {
     }));
   };
 
-  // Validation for basic information
   const validateBasicInfo = () => {
-    let isValid = true;
-    ['clinicName', 'tagline', 'companyLogo'].forEach(field => {
+    const fields = ['clinicName', 'tagline', 'companyLogo'];
+    for (const field of fields) {
       if (!formData.basicInfo[field]) {
         toast.error(`${field.replace(/([A-Z])/g, ' $1').trim()} is required.`);
-        isValid = false;
+        return false;
       }
-    });
-    return isValid;
+    }
+    return true;
   };
 
-  // Validation for address information
   const validateAddressInfo = () => {
-    let isValid = true;
-    Object.keys(formData.addressInfo).forEach(field => {
+    const addressFields = Object.keys(formData.addressInfo);
+    for (const field of addressFields) {
       if (!formData.addressInfo[field]) {
         toast.error(`${field.replace(/([A-Z])/g, ' $1').trim()} is required.`);
-        isValid = false;
+        return false;
       }
-    });
-    return isValid;
+    }
+    return true;
   };
 
-  // Generic save handler
   const handleSave = (section) => {
     const validators = {
       'basicInfo': validateBasicInfo,
@@ -74,42 +70,96 @@ const ClinicProfileSetting = () => {
     }
   };
 
-  // Generic cancel handler
   const handleCancel = (section) => {
     setEditModes(prev => ({ ...prev, [section]: false }));
   };
 
-  // Generic field cancel handler
   const handleFieldCancel = (section, field) => {
     handleInputChange(section, field, "");
   };
 
-  // Render input field for both sections
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.match(/image.(jpeg|jpg|png)/)) {
+      toast.error('Only JPG, JPEG, and PNG files are allowed');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handleInputChange('basicInfo', 'companyLogo', reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const renderField = (section, label, field, placeholder, type = "text") => (
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
-      <label className="text-gray-600 font-medium mb-1 pl-2" aria-label={label}>{label}</label>
+      <label className="text-gray-600 font-medium mb-1 pl-2">{label}</label>
       <div className="relative w-full">
         {editModes[section] ? (
-          <input
-            type={type}
-            value={formData[section][field]}
-            onChange={(e) => handleInputChange(section, field, e.target.value)}
-            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-            placeholder={placeholder}
-            aria-label={`Edit ${label}`}
-          />
+          field === 'companyLogo' ? (
+            <div className="relative group">
+              <input
+                type="file"
+                accept="image/jpeg, image/jpg, image/png"
+                onChange={handleImageUpload}
+                className="hidden"
+                id="logo-upload"
+              />
+              <label
+                htmlFor="logo-upload"
+                className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-[#FF7B54] transition-colors"
+              >
+                {formData.basicInfo.companyLogo ? (
+                  <img
+                    src={formData.basicInfo.companyLogo}
+                    alt="Company logo preview"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                ) : (
+                  <span className="text-gray-400 text-center text-sm">
+                    Click to upload
+                  </span>
+                )}
+              </label>
+            </div>
+          ) : (
+            <input
+              type={type}
+              value={formData[section][field]}
+              onChange={(e) => handleInputChange(section, field, e.target.value)}
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+              placeholder={placeholder}
+            />
+          )
         ) : (
-          <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px]" 
-               aria-label={`${label}: ${formData[section][field] || 'Not Provided'}`}>
-            {formData[section][field] || "N/A"}
-          </div>
+          field === 'companyLogo' ? (
+            <div className="w-32 h-32 border rounded-lg overflow-hidden">
+              {formData.basicInfo.companyLogo ? (
+                <img
+                  src={formData.basicInfo.companyLogo}
+                  alt="Company logo"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <span className="text-gray-400">No logo</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px]">
+              {formData[section][field] || "N/A"}
+            </div>
+          )
         )}
-        {formData[section][field] && editModes[section] && (
+        {field !== 'companyLogo' && formData[section][field] && editModes[section] && (
           <button
             type="button"
             onClick={() => handleFieldCancel(section, field)}
             className="absolute top-1/2 right-4 transform -translate-y-1/2 text-black"
-            aria-label={`Clear ${label}`}
           >
             <img src={cancelIcon} alt="cancel" className="w-5 h-5 object-contain" />
           </button>
@@ -161,11 +211,11 @@ const ClinicProfileSetting = () => {
       <div className="flex flex-wrap gap-7 w-full">
         {renderField('basicInfo', "Clinic Name", "clinicName", "Enter clinic name")}
         {renderField('basicInfo', "Tagline", "tagline", "Enter tagline")}
-        {renderField('basicInfo', "Company Logo", "companyLogo", "Enter company logo URL")}
+        {renderField('basicInfo', "Company Logo", "companyLogo", "")}
       </div>
 
       {/* Address Details */}
-      <div className="flex items-center justify-between mx-2 mb-6 mt-10 ">
+      <div className="flex items-center justify-between mx-2 mb-6 mt-10">
         <div className="flex items-center">
           <div className="h-[48px] w-[9px] border-e-2 bg-[#FF7B54]" />
           <h1 className="text-[24px] text-[#FF7B54] mx-2">Address Details</h1>
@@ -211,9 +261,9 @@ const ClinicProfileSetting = () => {
         {renderField('addressInfo', "Country", "country", "Enter country")}
       </div>
 
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
-}
+};
 
 export default ClinicProfileSetting;

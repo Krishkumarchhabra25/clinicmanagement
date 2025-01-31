@@ -22,9 +22,30 @@ export function AdminProfileSetting() {
 
   // Generic function for handling input changes
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    let processedValue = value;
+    
+    // Add input type-specific handling
+    switch(field) {
+      case 'patientNumber':
+        // Allow only numbers and limit to 10 digits
+        processedValue = value.replace(/\D/g, '').slice(0, 10);
+        break;
+        
+      case 'age':
+        // Allow only numbers and limit to 2 digits
+        processedValue = value.replace(/\D/g, '').slice(0, 2);
+        break;
+        
+      case 'patientName':
+        // Allow only letters and spaces
+        processedValue = value.replace(/[^a-zA-Z\s'-]/g, '');
+        break;
+        
+   
+    }
+  
+    setFormData(prev => ({ ...prev, [field]: processedValue }));
   };
-
   // Generic function for canceling individual fields
   const handleCancelField = (field) => {
     handleInputChange(field, "");
@@ -45,15 +66,14 @@ export function AdminProfileSetting() {
       { field: 'age', check: !formData.age || !/^\d+$/.test(formData.age), message: "Age must be numeric." },
       { field: 'email', check: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email), message: "Invalid email address." }
     ];
-
-    let isValid = true;
-    validations.forEach(({ check, message }) => {
-      if (check) {
-        toast.error(message);
-        isValid = false;
+  
+    for (const validation of validations) {
+      if (validation.check) {
+        toast.error(validation.message);
+        return false; // Stop at first error
       }
-    });
-    return isValid;
+    }
+    return true;
   };
 
   // Render function for input fields, including dropdown for gender
@@ -80,6 +100,16 @@ export function AdminProfileSetting() {
               onChange={(e) => handleInputChange(field, e.target.value)}
               className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
               placeholder={placeholder}
+              inputMode={
+                field === 'patientNumber' || field === 'age' 
+                  ? 'numeric' 
+                  : 'text'
+              }
+              maxLength={
+                field === 'patientNumber' ? 10 :
+                field === 'age' ? 2 :
+                undefined
+              }
             />
           )
         ) : (
@@ -99,6 +129,7 @@ export function AdminProfileSetting() {
       </div>
     </div>
   );
+  
 
   const toggleEditMode = () => {
     setIsEditMode(prev => !prev);

@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 import Switch from "react-switch";
 import Template from "../../components/common/Template";
+import { FaClock } from "react-icons/fa";
 
 const scheduleData = [
   { day: "Sunday", startTime: "09:00", endTime: "20:00", isWorking: true },
   { day: "Monday", startTime: "09:00", endTime: "20:00", isWorking: true },
   { day: "Tuesday", startTime: "09:00", endTime: "21:00", isWorking: true },
   { day: "Wednesday", startTime: "09:00", endTime: "20:00", isWorking: true },
-  { day: "Thursday", startTime: "Select Time", endTime: "20:00", isWorking: true },
-  { day: "Friday", startTime: "Select Time", endTime: "Select Time", isWorking: true },
+  { day: "Thursday", startTime: "", endTime: "20:00", isWorking: true },
+  { day: "Friday", startTime: "", endTime: "", isWorking: true },
   { day: "Saturday", startTime: "", endTime: "", isWorking: false },
 ];
 
@@ -57,10 +60,15 @@ const DaySchedule = ({ index, schedule, updateSchedule }) => {
         <Switch
           onChange={() => updateSchedule(index, "isWorking", !isWorking)}
           checked={isWorking}
-          offColor="#808080"
-          onColor="#FF0000"
+          offColor="#E5E5E5"
+          onColor="#E5E5E5"
+          offHandleColor="#162832"
+          onHandleColor="#FF7B54"
           uncheckedIcon={false}
           checkedIcon={false}
+          handleDiameter={20}
+          height={23}
+          width={48}
         />
       </div>
       {isWorking ? (
@@ -80,23 +88,33 @@ const DaySchedule = ({ index, schedule, updateSchedule }) => {
 
 const TimeSlot = ({ startTime, endTime, updateSchedule }) => {
   return (
-    <div className="flex flex-wrap gap-3.5 justify-center items-center mt-3.5 w-full text-base text-stone-950 max-md:max-w-full">
-      <div className="flex flex-col flex-1 shrink justify-center self-stretch px-2.5 py-3.5 my-auto rounded-xl basis-0 bg-zinc-100 min-h-[52px]">
-        <TimePicker
-          onChange={(value) => updateSchedule("startTime", value)}
-          value={startTime === "Select Time" ? null : startTime}
-          clearIcon={null}
-          clockIcon={null}
-        />
+    <div className="flex flex-wrap gap-6 justify-center items-center mt-3.5 w-full text-base text-stone-950 max-md:max-w-full">
+      <div className="flex flex-col flex-1 shrink justify-center self-stretch px-2.5 py-3.5 my-auto rounded-xl basis-0 bg-transparent min-h-[52px] border border-gray-300">
+        <div className="flex items-center gap-2">
+          <TimePicker
+            onChange={(value) => updateSchedule("startTime", value)}
+            value={startTime && startTime !== "" ? startTime : ""}
+            disableClock
+            clearIcon={null}
+            className="w-full bg-transparent outline-none border-none text-sm"
+            placeholder="09:00 AM"
+          />
+          <FaClock className="text-gray-500" />
+        </div>
       </div>
       <div className="self-stretch my-auto text-gray-800">To</div>
-      <div className="flex flex-col flex-1 shrink justify-center self-stretch px-2.5 py-3.5 my-auto rounded-xl basis-0 bg-zinc-100 min-h-[52px]">
-        <TimePicker
-          onChange={(value) => updateSchedule("endTime", value)}
-          value={endTime === "Select Time" ? null : endTime}
-          clearIcon={null}
-          clockIcon={null}
-        />
+      <div className="flex flex-col flex-1 shrink justify-center self-stretch px-2.5 py-3.5 my-auto rounded-xl basis-0 bg-transparent min-h-[52px] border border-gray-300">
+        <div className="flex items-center gap-2">
+          <TimePicker
+            onChange={(value) => updateSchedule("endTime", value)}
+            value={endTime && endTime !== "" ? endTime : ""}
+            disableClock
+            clearIcon={null}
+            className="w-full bg-transparent outline-none border-none text-sm"
+            placeholder="05:00 PM"
+          />
+          <FaClock className="text-gray-500" />
+        </div>
       </div>
     </div>
   );

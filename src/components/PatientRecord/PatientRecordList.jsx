@@ -128,19 +128,15 @@ const PatientModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
   const [dob, setDob] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [isSaving, setIsSaving] = useState(false);  // New state to track saving status
-  const [hasAttemptedSave, setHasAttemptedSave] = useState(false); // Track if user has attempted to save
+  const [isSaving, setIsSaving] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleClearInput = (setter) => {
-    setter("");
-  };
-
   const validateFields = () => {
+    // Validate in order of form appearance
     if (!patientName) return "Patient Name is required.";
     if (!patientNumber) return "Patient Number is required.";
-    if (!/^\d+$/.test(patientNumber)) return "Patient Number must be numeric.";
+    if (!/^\d{10}$/.test(patientNumber)) return "Patient Number must be 10 digits.";
     if (!gender) return "Gender is required.";
     if (!villageDetails) return "Village Details are required.";
     if (villageDetails.length > 60) return "Village Details can be a maximum of 60 characters.";
@@ -148,81 +144,120 @@ const PatientModal = ({ isOpen, onClose }) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Invalid email address.";
     if (!dob) return "Date of Birth is required.";
     if (remarks.length > 30) return "Remarks can be a maximum of 30 characters.";
-    return null; // No errors
+    return null;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // If already saving, prevent the second click
     if (isSaving) return;
 
-    // Trigger form validation only if save has not been attempted before
-    if (!hasAttemptedSave) {
-      const error = validateFields();
-      if (error) {
-        toast.error(error); // Show error message via toast
-        setHasAttemptedSave(true); // Mark as attempted save to prevent multiple errors
-        return;
-      }
+    setIsSaving(true);
+    const error = validateFields();
+
+    if (error) {
+      toast.error(error);
+      setIsSaving(false);
+      return;
     }
 
-    // Proceed with saving the data
-    setIsSaving(true);  // Set saving state to true when the process starts
-    toast.success("Patient details saved successfully!");
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success("Patient details saved successfully!");
 
-    // Simulate a delay for the save operation (e.g., API call)
-    setTimeout(() => {
-      setIsSaving(false);  // Reset saving state after a delay
-      setHasAttemptedSave(false); // Allow the user to try saving again
-      onClose();  // Close the modal
-    }, 2000);  // Adjust time as needed (e.g., 2 seconds)
+      // Clear form fields
+      setPatientName("");
+      setPatientNumber("");
+      setGender("");
+      setVillageDetails("");
+      setEmail("");
+      setDob("");
+      setRemarks("");
+      onClose();
+    } catch (error) {
+      toast.error("Failed to save patient details");
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setPatientNumber(value);
+  };
+
+  const inputFields = [
+    {
+      label: "Patient Name",
+      value: patientName,
+      setter: setPatientName,
+      type: "text",
+      placeholder: "Enter patient name"
+    },
+    {
+      label: "Village Details",
+      value: villageDetails,
+      setter: setVillageDetails,
+      type: "text",
+      placeholder: "Enter village details (max 60 characters)"
+    },
+    {
+      label: "Email",
+      value: email,
+      setter: setEmail,
+      type: "email",
+      placeholder: "Enter email"
+    },
+    {
+      label: "Remarks",
+      value: remarks,
+      setter: setRemarks,
+      type: "text",
+      placeholder: "Enter remarks (max 30 characters)"
+    }
+  ];
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end items-center">
-      {/* Toast Container */}
-      <ToastContainer />
+      <ToastContainer position="top-center" autoClose={3000} />
       
-      {/* Overlay */}
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50"
-        onClick={onClose}
-      ></div>
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
 
-      {/* Modal */}
-      <div style={{
-        scrollbarWidth: "none", // Firefox
-        msOverflowStyle: "none", // IE and Edge
-      }} className="relative w-[400px] h-[calc(100%-40px)] bg-white rounded-l-3xl rounded-r-3xl shadow-lg p-6 overflow-y-auto mr-5 mt-5 mb-5">
+      <div className="relative w-[400px] h-[calc(100%-40px)] bg-white rounded-l-3xl rounded-r-3xl shadow-lg p-6 overflow-y-auto mr-5 mt-5 mb-5">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
         >
           ✕
         </button>
+        
         <h2 className="text-2xl font-semibold text-[#FF7B54]">Add Patient</h2>
+        
         <form className="mt-4" onSubmit={handleSubmit}>
-          <div className="mb-4 relative">
-            <label className="block text-gray-600 font-medium mb-2">
-              Patient Name
-            </label>
-            <input
-              type="text"
-              value={patientName}
-              onChange={(e) => setPatientName(e.target.value)}
-              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black pr-10"
-              placeholder="Enter patient name"
-            />
-            {patientName && (
-              <button
-                type="button"
-                onClick={() => handleClearInput(setPatientName)}
-                className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
-              >
-                <img src={cancelIcon} alt="cancel" />
-              </button>
-            )}
-          </div>
+          {inputFields.map((field) => (
+            <div key={field.label} className="mb-4 relative">
+              <label className="block text-gray-600 font-medium mb-2">
+                {field.label}
+              </label>
+              <input
+                type={field.type}
+                value={field.value}
+                onChange={(e) => field.setter(e.target.value)}
+                className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black pr-12"
+                placeholder={field.placeholder}
+              />
+              {field.value && (
+                <button
+                  type="button"
+                  onClick={() => field.setter("")}
+                  className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
+                >
+                  <img src={cancelIcon} alt="cancel" className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+          ))}
+
           <div className="mb-4 relative">
             <label className="block text-gray-600 font-medium mb-2">
               Patient Number
@@ -230,20 +265,22 @@ const PatientModal = ({ isOpen, onClose }) => {
             <input
               type="tel"
               value={patientNumber}
-              onChange={(e) => setPatientNumber(e.target.value)}
-              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black pr-10"
-              placeholder="Enter patient number"
+              onChange={handlePhoneChange}
+              inputMode="numeric"
+              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black pr-12"
+              placeholder="Enter 10-digit number"
             />
             {patientNumber && (
               <button
                 type="button"
-                onClick={() => handleClearInput(setPatientNumber)}
+                onClick={() => setPatientNumber("")}
                 className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
               >
-                <img src={cancelIcon} alt="cancel" />
+                <img src={cancelIcon} alt="cancel" className="w-5 h-5" />
               </button>
             )}
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-600 font-medium mb-2">Gender</label>
             <select
@@ -257,45 +294,7 @@ const PatientModal = ({ isOpen, onClose }) => {
               <option value="other">Other</option>
             </select>
           </div>
-          <div className="mb-4 relative">
-            <label className="block text-gray-600 font-medium mb-2">
-              Village Details
-            </label>
-            <input
-              value={villageDetails}
-              onChange={(e) => setVillageDetails(e.target.value)}
-              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
-              placeholder="Enter village details (max 60 characters)"
-            />
-            {villageDetails && (
-              <button
-                type="button"
-                onClick={() => handleClearInput(setVillageDetails)}
-                className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
-              >
-                <img src={cancelIcon} alt="cancel" />
-              </button>
-            )}
-          </div>
-          <div className="mb-4 relative">
-            <label className="block text-gray-600 font-medium mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
-              placeholder="Enter email"
-            />
-            {email && (
-              <button
-                type="button"
-                onClick={() => handleClearInput(setEmail)}
-                className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
-              >
-                <img src={cancelIcon} alt="cancel" />
-              </button>
-            )}
-          </div>
+
           <div className="mb-4">
             <label className="block text-gray-600 font-medium mb-2">
               Date of Birth
@@ -307,32 +306,13 @@ const PatientModal = ({ isOpen, onClose }) => {
               className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
             />
           </div>
-          <div className="mb-4 relative">
-            <label className="block text-gray-600 font-medium mb-2">
-              Remarks
-            </label>
-            <input
-              type="text"
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
-              placeholder="Enter any remarks (max 30 characters)"
-            />
-            {remarks && (
-              <button
-                type="button"
-                onClick={() => handleClearInput(setRemarks)}
-                className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
-              >
-                <img src={cancelIcon} alt="cancel" />
-              </button>
-            )}
-          </div>
+
           <button
             type="submit"
-            className="w-full bg-[#FF7B54] text-white p-3 rounded-md hover:bg-[#e76a48] transition"
+            className="w-full bg-[#FF7B54] text-white p-3 rounded-md hover:bg-[#e76a48] transition disabled:opacity-50"
+            disabled={isSaving}
           >
-          {isSaving ? "Saving..." : "Save Patient"}  {/* Show saving state */}
+            {isSaving ? "Saving..." : "Save Patient"}
           </button>
         </form>
       </div>
@@ -340,8 +320,5 @@ const PatientModal = ({ isOpen, onClose }) => {
   );
 };
 
+export default PatientModal;
 
-  
-  
-  
-  export default PatientList;

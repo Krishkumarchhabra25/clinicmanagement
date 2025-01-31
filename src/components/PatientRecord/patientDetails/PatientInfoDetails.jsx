@@ -20,7 +20,19 @@ export default function PatientDetailsComponent() {
   });
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    let processedValue = value;
+
+    // Phone number validation: only numbers, max 10 digits
+    if (field === 'patientNumber') {
+      processedValue = processedValue.replace(/\D/g, '').slice(0, 10);
+    }
+    
+    // Age validation: only numbers, max 2 digits
+    if (field === 'age') {
+      processedValue = processedValue.replace(/\D/g, '').slice(0, 2);
+    }
+
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
   };
 
   const handleBackButtonClick = () => {
@@ -30,6 +42,7 @@ export default function PatientDetailsComponent() {
   const handleCancelField = (field) => {
     setFormData((prev) => ({ ...prev, [field]: "" }));
   };
+
   const handleSave = () => {
     if (validateFields()) {
       setIsEditMode(false);
@@ -38,28 +51,44 @@ export default function PatientDetailsComponent() {
   };
 
   const validateFields = () => {
-    if (!formData.patientName) {
+    // Name validation
+    if (!formData.patientName.trim()) {
       toast.error("Patient name is required.");
       return false;
     }
-    if (!/^\d+$/.test(formData.patientNumber)) {
-      toast.error("Patient number must be numeric.");
+
+    // Phone number validation
+    if (!formData.patientNumber) {
+      toast.error("Phone number is required.");
       return false;
     }
-    if (!formData.age || !/^\d+$/.test(formData.age)) {
-      toast.error("Age must be numeric.");
+    if (formData.patientNumber.length !== 10) {
+      toast.error("Phone number must be 10 digits.");
       return false;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+
+    // Age validation
+    if (!formData.age) {
+      toast.error("Age is required.");
+      return false;
+    }
+    const ageNum = parseInt(formData.age, 10);
+    if (ageNum < 1 || ageNum > 99) {
+      toast.error("Age must be between 1 and 99.");
+      return false;
+    }
+
+    // Email validation
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       toast.error("Invalid email address.");
       return false;
     }
+
     return true;
   };
 
   const renderInputField = (label, field, placeholder, type = "text") => (
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
-      <ToastContainer />
       <label className="text-gray-600 font-medium mb-1 pl-2">{label}</label>
       <div className="relative w-full">
         {isEditMode ? (
@@ -69,6 +98,15 @@ export default function PatientDetailsComponent() {
             onChange={(e) => handleInputChange(field, e.target.value)}
             className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
             placeholder={placeholder}
+            maxLength={
+              field === 'patientNumber' ? 10 : 
+              field === 'age' ? 2 : 
+              undefined
+            }
+            inputMode={
+              (field === 'patientNumber' || field === 'age') ? 'numeric' : undefined
+            }
+            pattern={(field === 'patientNumber' || field === 'age') ? "[0-9]*" : undefined}
           />
         ) : (
           <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px]">
@@ -78,7 +116,7 @@ export default function PatientDetailsComponent() {
         {formData[field] && isEditMode && (
           <button
             type="button"
-            onClick={() => handleCancelField(field)} // Pass the field name here
+            onClick={() => handleCancelField(field)}
             className="absolute top-1/2 right-4 transform -translate-y-1/2 text-black"
           >
             <img
@@ -136,7 +174,7 @@ export default function PatientDetailsComponent() {
             </div>
           </div>
 
-          {/* Edit Mode Controls (Top Right Corner) */}
+          {/* Edit Mode Controls */}
           <div className="absolute right-10 top-6 flex gap-3">
             {isEditMode ? (
               <>
@@ -184,18 +222,20 @@ export default function PatientDetailsComponent() {
             Medical Preferences
           </button>
         </div>
-             </div>
+
         {/* Patient Details */}
         <div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
+          <ToastContainer />
           {activeTab === "Patient Information" && (
             <div className="flex flex-wrap gap-7">
               {renderInputField("Name", "patientName", "Enter patient name")}
-              {renderInputField("Phone Number", "patientNumber", "Enter patient number", "tel")}
-              {renderInputField("Age", "age", "Enter age", "number")}
+              {renderInputField("Phone Number", "patientNumber", "Enter 10-digit number", "tel")}
+              {renderInputField("Age", "age", "Enter age (1-99)", "number")}
               {renderInputField("Email", "email", "Enter email", "email")}
               {renderInputField("Village Details", "villageDetails", "Enter village details")}
               {renderInputField("Date of Birth", "dob", "", "date")}
               {renderInputField("Registration Date", "registrationDate", "", "date")}
+              
               <div className="flex flex-col items-start w-[45%]">
                 <label className="text-gray-600 font-medium mb-2">Gender</label>
                 <div className="relative w-full">
@@ -220,7 +260,7 @@ export default function PatientDetailsComponent() {
             </div>
           )}
         </div>
- 
+      </div>
     </div>
   );
 }
