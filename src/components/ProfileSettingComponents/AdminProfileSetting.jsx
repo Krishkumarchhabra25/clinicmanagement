@@ -60,21 +60,44 @@ export function AdminProfileSetting() {
 
   // Consolidated validation for all fields
   const validateFields = () => {
-    const validations = [
-      { field: 'patientName', check: !formData.patientName, message: "Patient name is required." },
-      { field: 'patientNumber', check: !/^\d+$/.test(formData.patientNumber), message: "Patient number must be numeric." },
-      { field: 'age', check: !formData.age || !/^\d+$/.test(formData.age), message: "Age must be numeric." },
-      { field: 'email', check: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email), message: "Invalid email address." }
+    toast.dismiss(); // Dismiss existing toasts before showing a new one
+  
+    const requiredFields = [
+      { field: 'patientName', message: " name is required." },
+      { field: 'patientNumber', message: "Patient number is required." },
+      { field: 'age', message: "Age is required." },
+      { field: 'email', message: "Email is required." },
+      { field: 'gender', message: "Gender is required." },
+      { field: 'dob', message: "Date of birth is required." },
+      { field: 'registrationDate', message: "Registration date is required." },
+      { field: 'villageDetails', message: "Village details are required." }
     ];
   
-    for (const validation of validations) {
-      if (validation.check) {
-        toast.error(validation.message);
-        return false; // Stop at first error
+    for (const item of requiredFields) {
+      if (!formData[item.field]) {
+        toast.error(item.message, { toastId: "validation-error" }); // Show only one toast at a time
+        return false;
       }
     }
+  
+    // Additional specific format validations
+    if (!/^\d+$/.test(formData.patientNumber)) {
+      toast.error(" number must be numeric.", { toastId: "validation-error" });
+      return false;
+    }
+    if (!/^\d+$/.test(formData.age)) {
+      toast.error("Age must be numeric.", { toastId: "validation-error" });
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      toast.error("Invalid email address.", { toastId: "validation-error" });
+      return false;
+    }
+  
     return true;
   };
+  
+  
 
   // Render function for input fields, including dropdown for gender
   const renderField = (label, field, placeholder, type = "text") => (

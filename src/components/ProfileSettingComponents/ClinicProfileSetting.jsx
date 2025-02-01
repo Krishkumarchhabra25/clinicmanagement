@@ -37,38 +37,59 @@ const ClinicProfileSetting = () => {
   };
 
   const validateBasicInfo = () => {
-    const fields = ['clinicName', 'tagline', 'companyLogo'];
+    toast.dismiss(); // Dismiss existing toasts before showing a new one
+  
+    const fields = [
+      { key: 'clinicName', label: 'Clinic Name' },
+      { key: 'tagline', label: 'Tagline' },
+      { key: 'companyLogo', label: 'Company Logo' }
+    ];
+  
     for (const field of fields) {
-      if (!formData.basicInfo[field]) {
-        toast.error(`${field.replace(/([A-Z])/g, ' $1').trim()} is required.`);
+      if (!formData.basicInfo[field.key]) {
+        toast.error(`${field.label} is required.`, { toastId: "validation-error" });
         return false;
       }
     }
+  
     return true;
   };
 
   const validateAddressInfo = () => {
-    const addressFields = Object.keys(formData.addressInfo);
+    toast.dismiss(); // Dismiss existing toasts before showing a new one
+  
+    const addressFields = [
+      { key: 'streetAddress1', label: 'Street Address 1' },
+      { key: 'streetAddress2', label: 'Street Address 2' },
+      { key: 'city', label: 'City' },
+      { key: 'postalCode', label: 'Postal Code' },
+      { key: 'state', label: 'State' },
+      { key: 'country', label: 'Country' }
+    ];
+  
     for (const field of addressFields) {
-      if (!formData.addressInfo[field]) {
-        toast.error(`${field.replace(/([A-Z])/g, ' $1').trim()} is required.`);
+      if (!formData.addressInfo[field.key]) {
+        toast.error(`${field.label} is required.`, { toastId: "validation-error" });
         return false;
       }
     }
+  
     return true;
   };
-
   const handleSave = (section) => {
+    toast.dismiss(); // Dismiss previous toasts before validation
+  
     const validators = {
       'basicInfo': validateBasicInfo,
       'addressInfo': validateAddressInfo
     };
-    
+  
     if (validators[section]()) {
       setEditModes(prev => ({ ...prev, [section]: false }));
-      toast.success(`${section.replace(/([A-Z])/g, ' $1').trim()} saved successfully!`);
+      toast.success(`${section.replace(/([A-Z])/g, ' $1').trim()} saved successfully!`, { toastId: "success-message" });
     }
   };
+  
 
   const handleCancel = (section) => {
     setEditModes(prev => ({ ...prev, [section]: false }));

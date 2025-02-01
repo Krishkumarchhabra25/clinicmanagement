@@ -6,7 +6,7 @@ import cancelIcon from "../../assets/cancel.png"
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-function PatientList() {
+const PatientList =()=> {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -120,7 +120,7 @@ function PatientList() {
 
 
 
-const PatientModal = ({ isOpen, onClose }) => {
+export const PatientModal = ({ isOpen, onClose }) => {
   const [patientName, setPatientName] = useState("");
   const [patientNumber, setPatientNumber] = useState("");
   const [gender, setGender] = useState("");
@@ -133,7 +133,6 @@ const PatientModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const validateFields = () => {
-    // Validate in order of form appearance
     if (!patientName) return "Patient Name is required.";
     if (!patientNumber) return "Patient Number is required.";
     if (!/^\d{10}$/.test(patientNumber)) return "Patient Number must be 10 digits.";
@@ -150,22 +149,23 @@ const PatientModal = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSaving) return;
-
+  
     setIsSaving(true);
     const error = validateFields();
-
+  
     if (error) {
-      toast.error(error);
+      toast.error(error, { toastId: "validation-error" });
       setIsSaving(false);
       return;
     }
-
+  
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success("Patient details saved successfully!");
-
-      // Clear form fields
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+  
+      // Show success toast
+      toast.success("Patient details saved successfully!", { toastId: "success" });
+  
+      // Reset form before closing
       setPatientName("");
       setPatientNumber("");
       setGender("");
@@ -173,13 +173,15 @@ const PatientModal = ({ isOpen, onClose }) => {
       setEmail("");
       setDob("");
       setRemarks("");
-      onClose();
+  
+      onClose(); // Close modal after showing toast
     } catch (error) {
-      toast.error("Failed to save patient details");
+      toast.error("Failed to save patient details", { toastId: "error" });
     } finally {
       setIsSaving(false);
     }
   };
+  
 
   const handlePhoneChange = (e) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -187,46 +189,27 @@ const PatientModal = ({ isOpen, onClose }) => {
   };
 
   const inputFields = [
-    {
-      label: "Patient Name",
-      value: patientName,
-      setter: setPatientName,
-      type: "text",
-      placeholder: "Enter patient name"
-    },
-    {
-      label: "Village Details",
-      value: villageDetails,
-      setter: setVillageDetails,
-      type: "text",
-      placeholder: "Enter village details (max 60 characters)"
-    },
-    {
-      label: "Email",
-      value: email,
-      setter: setEmail,
-      type: "email",
-      placeholder: "Enter email"
-    },
-    {
-      label: "Remarks",
-      value: remarks,
-      setter: setRemarks,
-      type: "text",
-      placeholder: "Enter remarks (max 30 characters)"
-    }
+    { label: "Patient Name", value: patientName, setter: setPatientName, type: "text", placeholder: "Enter patient name" },
+    { label: "Patient Number", value: patientNumber, setter: setPatientNumber, type: "tel", placeholder: "Enter 10-digit number", onChange: handlePhoneChange },
+    { label: "Gender", value: gender, setter: setGender, type: "select", options: ["Male", "Female", "Other"] },
+    { label: "Village Details", value: villageDetails, setter: setVillageDetails, type: "text", placeholder: "Enter village details (max 60 characters)" },
+    { label: "Email", value: email, setter: setEmail, type: "email", placeholder: "Enter email" },
+    { label: "Date of Birth", value: dob, setter: setDob, type: "date" },
+    { label: "Remarks", value: remarks, setter: setRemarks, type: "text", placeholder: "Enter remarks (max 30 characters)" }
   ];
+  
 
   return (
+    
     <div className="fixed inset-0 z-50 flex justify-end items-center">
-      <ToastContainer position="top-center" autoClose={3000} />
-      
+   <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
 
       <div className="relative w-[400px] h-[calc(100%-40px)] bg-white rounded-l-3xl rounded-r-3xl shadow-lg p-6 overflow-y-auto mr-5 mt-5 mb-5">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+          disabled={isSaving}
         >
           ✕
         </button>
@@ -234,91 +217,68 @@ const PatientModal = ({ isOpen, onClose }) => {
         <h2 className="text-2xl font-semibold text-[#FF7B54]">Add Patient</h2>
         
         <form className="mt-4" onSubmit={handleSubmit}>
-          {inputFields.map((field) => (
-            <div key={field.label} className="mb-4 relative">
-              <label className="block text-gray-600 font-medium mb-2">
-                {field.label}
-              </label>
+        {inputFields.map((field) => (
+          <div key={field.label} className="mb-4 relative">
+            <label className="block text-gray-600 font-medium mb-2">{field.label}</label>
+            
+            {field.type === "select" ? (
+              <select
+                value={field.value}
+                onChange={(e) => field.setter(e.target.value)}
+                className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
+                disabled={isSaving}
+              >
+                <option value="">Select {field.label}</option>
+                {field.options.map((option) => (
+                  <option key={option} value={option.toLowerCase()}>{option}</option>
+                ))}
+              </select>
+            ) : (
               <input
                 type={field.type}
                 value={field.value}
-                onChange={(e) => field.setter(e.target.value)}
+                onChange={field.onChange ? field.onChange : (e) => field.setter(e.target.value)}
                 className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black pr-12"
                 placeholder={field.placeholder}
+                disabled={isSaving}
               />
-              {field.value && (
-                <button
-                  type="button"
-                  onClick={() => field.setter("")}
-                  className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
-                >
-                  <img src={cancelIcon} alt="cancel" className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-          ))}
-
-          <div className="mb-4 relative">
-            <label className="block text-gray-600 font-medium mb-2">
-              Patient Number
-            </label>
-            <input
-              type="tel"
-              value={patientNumber}
-              onChange={handlePhoneChange}
-              inputMode="numeric"
-              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black pr-12"
-              placeholder="Enter 10-digit number"
-            />
-            {patientNumber && (
+            )}
+        
+            {field.value && field.type !== "select" && (
               <button
                 type="button"
-                onClick={() => setPatientNumber("")}
+                onClick={() => field.setter("")}
                 className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
+                disabled={isSaving}
               >
                 <img src={cancelIcon} alt="cancel" className="w-5 h-5" />
               </button>
             )}
           </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium mb-2">Gender</label>
-            <select
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium mb-2">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
-            />
-          </div>
+        ))}
+        
 
           <button
             type="submit"
-            className="w-full bg-[#FF7B54] text-white p-3 rounded-md hover:bg-[#e76a48] transition disabled:opacity-50"
+            className="w-full bg-[#FF7B54] text-white p-3 rounded-md hover:bg-[#e76a48] transition disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSaving}
           >
-            {isSaving ? "Saving..." : "Save Patient"}
+            {isSaving ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+                Saving...
+              </span>
+            ) : (
+              "Save Patient"
+            )}
           </button>
         </form>
       </div>
     </div>
   );
 };
-
-export default PatientModal;
+export default PatientList; 
 

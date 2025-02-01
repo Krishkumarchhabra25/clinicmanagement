@@ -6,6 +6,7 @@ export default function PatientDetailsComponent() {
   const [activeTab, setActiveTab] = useState("Patient Information");
   const { state } = useLocation();
   const [isEditMode, setIsEditMode] = useState(state?.isEditMode || false);
+  const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -22,12 +23,10 @@ export default function PatientDetailsComponent() {
   const handleInputChange = (field, value) => {
     let processedValue = value;
 
-    // Phone number validation: only numbers, max 10 digits
     if (field === 'patientNumber') {
       processedValue = processedValue.replace(/\D/g, '').slice(0, 10);
     }
     
-    // Age validation: only numbers, max 2 digits
     if (field === 'age') {
       processedValue = processedValue.replace(/\D/g, '').slice(0, 2);
     }
@@ -44,48 +43,87 @@ export default function PatientDetailsComponent() {
   };
 
   const handleSave = () => {
-    if (validateFields()) {
-      setIsEditMode(false);
-      toast.success("Patient information saved successfully!");
+    if (isSaving) return;
+    setIsSaving(true);
+  
+    // Validate and show first error
+    const isValid = validateFields();
+    
+    if (isValid) {
+      // Simulate API call
+      setTimeout(() => {
+        setIsEditMode(false);
+        toast.success("Saved successfully!", { toastId: 'success' });
+        setIsSaving(false);
+      }, 1000);
+    } else {
+      setIsSaving(false);
+    }
+  };
+
+  const showError = (message, toastId) => {
+    if (!toast.isActive(toastId)) {
+      toast.error(message, { toastId });
     }
   };
 
   const validateFields = () => {
-    // Name validation
     if (!formData.patientName.trim()) {
-      toast.error("Patient name is required.");
+      showError("Patient name is required.", 'name-error');
       return false;
     }
-
-    // Phone number validation
+  
     if (!formData.patientNumber) {
-      toast.error("Phone number is required.");
+      showError("Phone number is required.", 'phone-required');
+      return false;
+    } else if (formData.patientNumber.length !== 10) {
+      showError("Phone number must be 10 digits.", 'phone-length');
       return false;
     }
-    if (formData.patientNumber.length !== 10) {
-      toast.error("Phone number must be 10 digits.");
+  
+    if (!formData.gender) {
+      showError("Gender is required.", 'gender-error');
       return false;
     }
-
-    // Age validation
+  
     if (!formData.age) {
-      toast.error("Age is required.");
+      showError("Age is required.", 'age-required');
+      return false;
+    } else {
+      const ageNum = parseInt(formData.age, 10);
+      if (ageNum < 1 || ageNum > 99) {
+        showError("Age must be between 1 and 99.", 'age-range');
+        return false;
+      }
+    }
+  
+    if (!formData.villageDetails.trim()) {
+      showError("Village details are required.", 'village-error');
       return false;
     }
-    const ageNum = parseInt(formData.age, 10);
-    if (ageNum < 1 || ageNum > 99) {
-      toast.error("Age must be between 1 and 99.");
+  
+    if (!formData.email) {
+      showError("Email is required.", 'email-required');
+      return false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      showError("Invalid email address.", 'email-invalid');
       return false;
     }
-
-    // Email validation
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      toast.error("Invalid email address.");
+  
+    if (!formData.dob) {
+      showError("Date of Birth is required.", 'dob-error');
       return false;
     }
-
+  
+    if (!formData.registrationDate) {
+      showError("Registration date is required.", 'registration-error');
+      return false;
+    }
+  
     return true;
   };
+  
+  
 
   const renderInputField = (label, field, placeholder, type = "text") => (
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
@@ -106,7 +144,7 @@ export default function PatientDetailsComponent() {
             inputMode={
               (field === 'patientNumber' || field === 'age') ? 'numeric' : undefined
             }
-            pattern={(field === 'patientNumber' || field === 'age') ? "[0-9]*" : undefined}
+            disabled={isSaving}
           />
         ) : (
           <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px]">
@@ -118,6 +156,7 @@ export default function PatientDetailsComponent() {
             type="button"
             onClick={() => handleCancelField(field)}
             className="absolute top-1/2 right-4 transform -translate-y-1/2 text-black"
+            disabled={isSaving}
           >
             <img
               src={cancelIcon}
@@ -131,7 +170,9 @@ export default function PatientDetailsComponent() {
   );
 
   const toggleEditMode = () => {
-    setIsEditMode((prev) => !prev);
+    if (!isSaving) {
+      setIsEditMode((prev) => !prev);
+    }
   };
 
   return (
@@ -179,22 +220,30 @@ export default function PatientDetailsComponent() {
             {isEditMode ? (
               <>
                 <button
-                  onClick={() => setIsEditMode(false)}
-                  className="pr-[20px] pl-[20px] pt-[10px] pb-[10px] bg-[#F4F4F4] text-black rounded-lg"
+                  onClick={() => !isSaving && setIsEditMode(false)}
+                  className="pr-[20px] pl-[20px] pt-[10px] pb-[10px] bg-[#F4F4F4] text-black rounded-lg disabled:opacity-50"
+                  disabled={isSaving}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="pr-[20px] pl-[20px] pt-[10px] pb-[10px] bg-[#FF7B54] text-white rounded-lg text-[18px]"
+                  className="pr-[20px] pl-[20px] pt-[10px] pb-[10px] bg-[#FF7B54] text-white rounded-lg text-[18px] disabled:opacity-75 disabled:cursor-not-allowed"
+                  disabled={isSaving}
                 >
-                  Save
+                  {isSaving ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Saving...
+                    </div>
+                  ) : 'Save'}
                 </button>
               </>
             ) : (
               <button
                 onClick={toggleEditMode}
-                className="px-2.5 py-3 border border-solid border-stone-300 rounded w-12"
+                className="px-2.5 py-3 border border-solid border-stone-300 rounded w-12 hover:bg-gray-50"
+                disabled={isSaving}
               >
                 <img
                   loading="lazy"
@@ -224,42 +273,45 @@ export default function PatientDetailsComponent() {
         </div>
 
         {/* Patient Details */}
-        <div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
-          <ToastContainer />
-          {activeTab === "Patient Information" && (
-            <div className="flex flex-wrap gap-7">
-              {renderInputField("Name", "patientName", "Enter patient name")}
-              {renderInputField("Phone Number", "patientNumber", "Enter 10-digit number", "tel")}
-              {renderInputField("Age", "age", "Enter age (1-99)", "number")}
-              {renderInputField("Email", "email", "Enter email", "email")}
-              {renderInputField("Village Details", "villageDetails", "Enter village details")}
-              {renderInputField("Date of Birth", "dob", "", "date")}
-              {renderInputField("Registration Date", "registrationDate", "", "date")}
-              
-              <div className="flex flex-col items-start w-[45%]">
-                <label className="text-gray-600 font-medium mb-2">Gender</label>
-                <div className="relative w-full">
-                  {isEditMode ? (
-                    <select
-                      value={formData.gender}
-                      onChange={(e) => handleInputChange("gender", e.target.value)}
-                      className="w-full p-3 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
-                  ) : (
-                    <div className="p-3 bg-transparent border-none text-black">
-                      {formData.gender || "N/A"}
-                    </div>
-                  )}
-                </div>
-              </div>
+       {/* Patient Details */}
+<div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
+  <ToastContainer position="top-center" autoClose={3000} />
+  {activeTab === "Patient Information" && (
+    <div className="flex flex-wrap gap-7">
+      {renderInputField("Name", "patientName", "Enter patient name")}
+      {renderInputField("Date of Birth", "dob", "", "date")}
+      {renderInputField("Phone Number", "patientNumber", "Enter 10-digit number", "tel")}
+      {renderInputField("Age", "age", "Enter age (1-99)", "number")}
+      {renderInputField("Email", "email", "Enter email", "email")}
+      {renderInputField("Village Details", "villageDetails", "Enter village details")}
+      {renderInputField("Registration Date", "registrationDate", "", "date")}
+      
+      <div className="flex flex-col items-start w-[45%]">
+        <label className="text-gray-600 font-medium mb-2">Gender</label>
+        <div className="relative w-full">
+          {isEditMode ? (
+            <select
+              value={formData.gender}
+              onChange={(e) => handleInputChange("gender", e.target.value)}
+              className="w-full p-3 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+              disabled={isSaving}
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          ) : (
+            <div className="p-3 bg-transparent border-none text-black">
+              {formData.gender || "N/A"}
             </div>
           )}
         </div>
+      </div>
+    </div>
+  )}
+</div>
+
       </div>
     </div>
   );
