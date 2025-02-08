@@ -1,19 +1,25 @@
 import Pagination from "./Pagination";
 import PatientListHeader from "./PatientRecordHeader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { patients } from "../../dummydata/patientDataList";
 import cancelIcon from "../../assets/cancel.png"
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useDispatch } from "react-redux";
+import { fetchAllPatients } from "../../redux/slices/patinetSlice";
 const PatientList =()=> {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const dispatch = useDispatch()
   const navigate = useNavigate();
-
+ 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  useEffect(()=>{
+    dispatch(fetchAllPatients({page:1}))
+  },[dispatch])
 
 
   const handleRowClick = (id, isEditMode = false) => {
@@ -281,4 +287,3 @@ export const PatientModal = ({ isOpen, onClose }) => {
   );
 };
 export default PatientList; 
-
