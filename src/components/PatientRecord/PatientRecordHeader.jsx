@@ -3,10 +3,12 @@ import MangeSearchIcon from "../../assets/manage_search.png";
 import FilterManageIcon from "../../assets/filter_list.png";
 import ExportIcon from "../../assets/file_export.png";
 import arrowDown from "../../assets/arrow_drop_down.png"
+
+
 const searchOptions = [
-  { value: "name", text: "By Name (Default)" },
+  { value: "patientname", text: "By Name (Default)" },
   { value: "id", text: "By Patient's ID" },
-  { value: "phone", text: "By Patient's Phone Number" },
+  { value: "phonenumber", text: "By Patient's Phone Number" },
 ];
 
 const sortOptions = [
@@ -19,9 +21,9 @@ const sortOptions = [
   { value: "None", text: "None" },
 ];
 
-function PatientListHeader() {
+function PatientListHeader({ searchTerm, onSearch, onSort }) {
   const [isFilterVisible, setIsFilterVisible] = React.useState(false);
-  const [selectedOption, setSelectedOption] = React.useState("name");
+  const [selectedOption, setSelectedOption] = React.useState("patientname");
   const [selectedOptionBySort, setSelectedOptionBySort] = React.useState("Name A-Z");
   const [isSortByVisible, setIsSortByVisible] = React.useState(false);
 
@@ -38,13 +40,16 @@ function PatientListHeader() {
   // Handle filter option change
   const handleOptionChange = (value) => {
     setSelectedOption(value);
-    setIsFilterVisible(false); // Close dropdown after selection
+    setIsFilterVisible(false);
+    // Trigger search with the current search term and new type
+    onSearch(searchTerm, value);
   };
 
   // Handle sort option change
   const handleSortByOptionChange = (value) => {
     setSelectedOptionBySort(value);
-    setIsSortByVisible(false); // Close dropdown after selection
+    setIsSortByVisible(false);
+    onSort(value);
   };
 
   // Get placeholder text based on selected filter
@@ -53,28 +58,37 @@ function PatientListHeader() {
     return option ? `Search by ${option.text.replace("By ", "")} Here` : "Search...";
   };
 
+  const handleSearchInput = (e) => {
+    onSearch(e.target.value, selectedOption);
+  };
+
   return (
     <div className="relative flex flex-wrap gap-10 justify-between items-center w-full max-md:max-w-full">
       <div className="flex flex-wrap gap-10 items-center self-stretch my-auto min-w-[240px] max-md:max-w-full">
-        <div className="self-stretch my-auto text-xl text-gray-800" style={{ fontFamily: "Outfit" }}>
+        <div
+          className="self-stretch my-auto text-xl text-gray-800"
+          style={{ fontFamily: "Outfit" }}
+        >
           Patient List
         </div>
         <div className="relative flex flex-wrap gap-1.5 items-center self-stretch px-4 py-2 my-auto text-sm bg-white rounded-3xl border border-solid border-stone-300 min-w-[240px] text-stone-300 w-[617px] max-md:max-w-full">
           <img
             loading="lazy"
             src={MangeSearchIcon}
-            alt=""
+            alt="Search Icon"
             className="object-contain shrink-0 self-stretch my-auto aspect-square w-[18px]"
           />
           <input
             type="text"
+            value={searchTerm}
+            onChange={handleSearchInput}
             placeholder={getPlaceholderText()}
-            className="flex-1 shrink  text-black self-stretch my-auto basis-0 max-md:max-w-full border-none focus:outline-none"
+            className="flex-1 shrink text-black self-stretch my-auto basis-0 max-md:max-w-full border-none focus:outline-none"
           />
           <img
             loading="lazy"
             src={FilterManageIcon}
-            alt=""
+            alt="Filter Icon"
             className="object-contain cursor-pointer shrink-0 self-stretch my-auto aspect-square w-[18px]"
             onClick={toggleFilterOptions}
           />
@@ -102,13 +116,13 @@ function PatientListHeader() {
           )}
         </div>
       </div>
-      <div className="relative flex gap-2.5 items-center self-stretch  my-auto text-sm whitespace-nowrap text-neutral-400">
+      <div className="relative flex gap-2.5 items-center self-stretch my-auto text-sm whitespace-nowrap text-neutral-400">
         <button
           onClick={toggleSortByOptions}
           className="flex gap-1.5 justify-center items-center self-stretch px-4 py-2 my-auto bg-white rounded-3xl border border-solid border-stone-300"
         >
           <span>Sort By</span>
-          <img src={arrowDown} alt="arrow down" width={18} height={18}/>
+          <img src={arrowDown} alt="arrow down" width={18} height={18} />
         </button>
         {isSortByVisible && (
           <div
@@ -139,7 +153,7 @@ function PatientListHeader() {
           <img
             loading="lazy"
             src={ExportIcon}
-            alt=""
+            alt="Export Icon"
             className="object-contain shrink-0 self-stretch my-auto aspect-square w-[18px]"
           />
           <span>Export</span>

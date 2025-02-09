@@ -1,39 +1,58 @@
 import * as React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllPatients } from "../../redux/slices/patinetSlice";
 
 function Pagination() {
+  const dispatch = useDispatch();
+  const { currentPage, totalPages } = useSelector((state) => state.patients);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      dispatch(fetchAllPatients({ page }));
+    }
+  };
+
   return (
-    <div className="flex flex-wrap gap-10 justify-between items-center self-center mt-8  max-w-full w-full">
+    <div className="flex flex-wrap gap-10 justify-between items-center self-center mt-8 max-w-full w-full">
       <div className="self-stretch text-xs text-zinc-500">
-        Showing 1 to 10 of 100 entries
+        Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, totalPages * 10)} of {totalPages * 10} entries
       </div>
       <div className="flex gap-1 items-center self-stretch my-auto">
-        <button aria-label="Previous page" className="flex flex-col justify-center items-center self-stretch px-2.5 my-auto bg-zinc-100 h-[27px] min-h-[27px] w-[27px]">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/de3beea5a0e3412a0a7ae8d7930fb4cc8fd85b96d561677ab9d676eb070b73e8?placeholderIfAbsent=true&apiKey=f1e3303ce7614e739d966e6db8bde094"
-            alt=""
-            className="object-contain aspect-[0.54] w-[7px]"
-          />
+        {/* Previous Button */}
+        <button
+          aria-label="Previous page"
+          className={`flex justify-center items-center px-2.5 bg-zinc-100 h-[27px] w-[27px] ${
+            currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          ◀
         </button>
-        <button aria-current="page" className="self-stretch px-2.5 py-1.5 my-auto w-6 text-xs text-white whitespace-nowrap bg-red-400 min-h-[27px]">
-          1
-        </button>
-        <button className="self-stretch px-2.5 my-auto text-xs text-black whitespace-nowrap bg-zinc-100 h-[27px] min-h-[27px] w-[27px]">
-          2
-        </button>
-        <button className="self-stretch px-2.5 my-auto w-7 h-7 text-xs text-black whitespace-nowrap bg-zinc-100 min-h-[27px]">
-          3
-        </button>
-        <span className="self-stretch px-2.5 my-auto w-7 h-7 text-xs text-black whitespace-nowrap bg-zinc-100 min-h-[27px]">
-          ...
-        </span>
-        <button aria-label="Next page" className="flex flex-col justify-center items-center self-stretch px-2.5 my-auto bg-zinc-100 h-[27px] min-h-[27px] rotate-[-3.141592653589793rad] w-[27px]">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/9de4bcc4a65177443f03f582ab33b2722b953768a754bfd0940e937018292b93?placeholderIfAbsent=true&apiKey=f1e3303ce7614e739d966e6db8bde094"
-            alt=""
-            className="object-contain aspect-[0.54] w-[7px]"
-          />
+
+        {/* Page Numbers */}
+        {[...Array(totalPages)].map((_, i) => (
+          <button
+            key={i}
+            className={`px-2.5 py-1.5 w-6 text-xs ${
+              currentPage === i + 1 ? "text-white bg-red-400" : "text-black bg-zinc-100"
+            } min-h-[27px]`}
+            onClick={() => handlePageChange(i + 1)}
+          >
+            {i + 1}
+          </button>
+        ))}
+
+        {/* Next Button */}
+        <button
+          aria-label="Next page"
+          className={`flex justify-center items-center px-2.5 bg-zinc-100 h-[27px] w-[27px] ${
+            currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          ▶
         </button>
       </div>
     </div>

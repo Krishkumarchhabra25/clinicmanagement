@@ -28,7 +28,7 @@ const LoginFormComponents = () => {
     e.preventDefault();
     const result = await dispatch(loginUser(formData));
     if (loginUser.fulfilled.match(result)) {
-      notifySuccess("Login Successful! Redirecting...", { position: "top-right" });
+      notifySuccess("Login Successful! ", { position: "top-right" });
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
