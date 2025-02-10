@@ -28,7 +28,7 @@ const LoginFormComponents = () => {
     e.preventDefault();
     const result = await dispatch(loginUser(formData));
     if (loginUser.fulfilled.match(result)) {
-      notifySuccess("Login Successful! ", { position: "top-right" });
+      notifySuccess("Login Successful!", { position: "top-right" });
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
@@ -36,6 +36,8 @@ const LoginFormComponents = () => {
       notifyError(result.payload || "Login Failed", { position: "top-right" });
     }
   };
+
+  
     return (
       <form  onSubmit={handleSubmit} className="flex flex-col mt-10 w-full max-md:max-w-full">
         <div className="flex flex-col w-full max-md:max-w-full">

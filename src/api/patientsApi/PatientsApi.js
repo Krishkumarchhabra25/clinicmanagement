@@ -21,6 +21,18 @@ export const searchPatinets = async (params) => {
   }
 };
 
+export const sortPatients = async (params)=>{
+  try {
+    const response = await axiosInstance.get(`/patient/sort-patient`,{
+      params
+    });
+    return response.data;
+  } catch (error) {
+    console.log("error" ,error)
+      throw error.response?.data || "Something went wrong"
+  }
+}
+
 export const addPatient = async(patinetData)=>{
   try {
     const response = await axiosInstance.post(`/patient/add-patient`, patinetData);
@@ -29,3 +41,15 @@ export const addPatient = async(patinetData)=>{
     throw error.response?.data || "Something went wrong"
   }
 }
+
+export const exportPatients = async () => {
+  try {
+    const response = await axiosInstance.get(`/patient/export-patient`, {
+      responseType: "blob",
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Export error:", error);
+    throw error.response?.data || "Something went wrong";
+  }
+};

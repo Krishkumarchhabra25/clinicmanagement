@@ -1,82 +1,148 @@
-import Pagination from "./Pagination";
-import PatientListHeader from "./PatientRecordHeader";
+import  { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import cancelIcon from "../../assets/cancel.png"
-
+// Toast notifications
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { createPatient, fetchSearchPatients } from "../../redux/slices/patinetSlice";
-import dotIcon from "../../assets/Frame 64.png"
-import editIcon from "../../assets/border_color.png"
-import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { fetchAllPatients } from "../../redux/slices/patinetSlice";
+// Components
+import Pagination from "./Pagination";
+import PatientListHeader from "./PatientRecordHeader"; 
+
+// Assets
+import cancelIcon from "../../assets/cancel.png";
+import dotIcon from "../../assets/Frame 64.png";
+import editIcon from "../../assets/border_color.png";
+
+// Redux actions
+import { 
+  createPatient, 
+  fetchSearchPatients, 
+  fetchAllPatients, 
+  fetchSortPatients
+} from "../../redux/slices/patinetSlice";
+
+
 
 const PatientList = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchType, setSearchType] = useState("patientname");
-  const [sortBy, setSortBy] = useState("Name A-Z");
+ // Local state
+ const [isModalOpen, setIsModalOpen] = useState(false);
+ const [searchTerm, setSearchTerm] = useState("");
+ const [searchType, setSearchType] = useState("patientname");
+ const [sortBy, setSortBy] = useState("Name A-Z");
 
-  const { patinets, currentPage, loading, error } = useSelector((state) => state.patients);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+ const { patinets, currentPage, loading, error } = useSelector(
+   (state) => state.patients
+ );
+ const dispatch = useDispatch();
+ const navigate = useNavigate();
 
-  // Debounced search effect
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      if (searchTerm) {
-        dispatch(
-          fetchSearchPatients({
-            type: searchType, 
-            query: searchTerm,
-            page: currentPage,
-          })
-        );
-      } else {
+ const openModal = () => setIsModalOpen(true);
+ const closeModal = () => setIsModalOpen(false);
+
+
+ useEffect(() => {
+   if (!searchTerm) {
+     dispatch(fetchAllPatients({ page: currentPage }));
+   }
+ }, [dispatch, currentPage, searchTerm]);
+
+
+ useEffect(() => {
+   if (error) {
+     toast.error(
+       typeof error === "object"
+         ? error.message || JSON.stringify(error)
+         : error,
+       {
+         position: "top-right",
+         autoClose: 5000,
+       }
+     );
+   }
+ }, [error]);
+
+
+ const handleSearch = (term, type) => {
+   setSearchTerm(term);
+   setSearchType(type);
+ };
+
+
+ const handleSearchEnter = () => {
+   if (searchTerm) {
+     dispatch(
+       fetchSearchPatients({
+         type: searchType,
+         query: searchTerm,
+         page: currentPage,
+       })
+     );
+   } else {
+     dispatch(fetchAllPatients({ page: currentPage }));
+   }
+ };
+
+
+ const handleSort = (sortValue) => {
+  setSortBy(sortValue);
+  if (sortValue !== "None") {
+    let sortByParam = "";
+    let sortOrderParam = "";
+    switch (sortValue) {
+      case "Name A-Z":
+        sortByParam = "name";
+        sortOrderParam = "asc";
+        break;
+      case "Name Z-A":
+        sortByParam = "name";
+        sortOrderParam = "desc";
+        break;
+      case "Registration Date (Newest to Oldest)":
+        sortByParam = "registrationDate";
+        sortOrderParam = "desc";
+        break;
+      case "Registration Date (Oldest to Newest)":
+        sortByParam = "registrationDate";
+        sortOrderParam = "asc";
+        break;
+      case "Mobile Number (Ascending)":
+        sortByParam = "phonenumber";
+        sortOrderParam = "asc";
+        break;
+      case "Mobile Number (Descending)":
+        sortByParam = "phonenumber";
+        sortOrderParam = "desc";
+        break;
+      default:
+        // If "None" or unexpected value, load all patients
         dispatch(fetchAllPatients({ page: currentPage }));
-      }
-    }, 500);
-
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm, searchType, currentPage, dispatch]);
-
-  // Handle error via toast instead of inline display
-  useEffect(() => {
-    if (error) {
-      toast.error(
-        typeof error === "object" ? error.message || JSON.stringify(error) : error,
-        {
-          position: "top-right",
-          autoClose: 5000,
-        }
-      );
+        return;
     }
-  }, [error]);
+    dispatch(
+      fetchSortPatients({
+        sortBy: sortByParam,
+        sortOrder: sortOrderParam,
+        page: currentPage,
+      })
+    );
+  } else {
+    // If no sorting is required, load all patients
+    dispatch(fetchAllPatients({ page: currentPage }));
+  }
+};
 
-  const handleSearch = (term, type) => {
-    setSearchTerm(term);
-    setSearchType(type);
-  };
 
-  const handleSort = (sortValue) => {
-    setSortBy(sortValue);
-    // Implement your sorting logic here if needed
-  };
+ const handleRowClick = (id, isEditMode = false) => {
+   navigate(`/patientdetails/${id}`, { state: { isEditMode } });
+ };
 
-  const handleRowClick = (id, isEditMode = false) => {
-    navigate(`/patientdetails/${id}`, { state: { isEditMode } });
-  };
-
-  const handleEditClick = (e, id) => {
-    e.stopPropagation();
-    handleRowClick(id, true);
-  };
+ const handleEditClick = (e, id) => {
+   e.stopPropagation();
+   handleRowClick(id, true);
+ };
 
   return (
     <div>
@@ -116,9 +182,10 @@ const PatientList = () => {
       <div className="flex flex-col justify-center px-7 py-4 bg-white rounded-3xl max-md:px-5">
         <div className="flex flex-col w-full max-md:max-w-full">
           <PatientListHeader
-            searchTerm={searchTerm}
-            onSearch={handleSearch}
-            onSort={handleSort}
+          searchTerm={searchTerm}
+          onSearch={handleSearch}
+          onSort={handleSort}
+          onSearchEnter={handleSearchEnter}  // This prop triggers search on Enter
           />
 
           {loading ? (

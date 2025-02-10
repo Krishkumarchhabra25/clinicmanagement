@@ -1,5 +1,5 @@
 import { createSlice , createAsyncThunk } from "@reduxjs/toolkit";
-import { addPatient, getAllPatients, searchPatinets } from "../../api/patientsApi/PatientsApi";
+import { addPatient, exportPatients, getAllPatients, searchPatinets, sortPatients } from "../../api/patientsApi/PatientsApi";
 
 export const fetchAllPatients = createAsyncThunk(
     "patients/fetchPatients", 
@@ -15,12 +15,10 @@ export const fetchAllPatients = createAsyncThunk(
   );
 
   export const fetchSearchPatients = createAsyncThunk(
-    "patients/searchPatients",
+    "patients/fetchSortedPatients",
     async ({ type, query, page = 1 }, { rejectWithValue }) => {
       try {
-        
         const params = { page, limit: 10 };
-        
         params[type] = query;
         const data = await searchPatinets(params);
         if (data.success) return data.data;
@@ -30,6 +28,23 @@ export const fetchAllPatients = createAsyncThunk(
       }
     }
   );
+
+// Sort patients (updated)
+export const fetchSortPatients = createAsyncThunk(
+  "patients/sortPatients",
+  async ({ sortBy, sortOrder, page = 1 }, { rejectWithValue }) => {
+    try {
+      // Pass an object containing sortBy, sortOrder, and page
+      const data = await sortPatients({ sortBy, sortOrder, page });
+      if (data.success) return data.data;
+      return rejectWithValue("Failed to sort patients");
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+  
 
   export const createPatient = createAsyncThunk(
     "patients/createPatient",
@@ -44,6 +59,19 @@ export const fetchAllPatients = createAsyncThunk(
     }
   )
 
+  export const exportPatientsThunk = createAsyncThunk(
+    "patients/exportPatients",
+    async (_, { rejectWithValue }) => {
+      try {
+        const data = await exportPatients(); // returns a blob
+        return data;
+      } catch (error) {
+        return rejectWithValue(error);
+      }
+    }
+  );
+
+
   const PatinetSlice = createSlice({
     name:"patients",
     initialState:{
@@ -51,7 +79,8 @@ export const fetchAllPatients = createAsyncThunk(
         totalPages:1,
         currentPage:1,
         loading:false,
-        error:null
+        error:null,
+        exportFile: null,
     },
     reducers:{},
     extraReducers:(builder)=>{
@@ -71,6 +100,7 @@ export const fetchAllPatients = createAsyncThunk(
             state.error = action.payload
           })
 
+          
           .addCase(createPatient.pending,(state)=>{
             state.loading = true;
           })
@@ -82,6 +112,7 @@ export const fetchAllPatients = createAsyncThunk(
             state.loading = false;
             state.error = action.payload;
           })
+
 
           .addCase(fetchSearchPatients.pending ,(state)=>{
             state.loading = true;
@@ -97,6 +128,34 @@ export const fetchAllPatients = createAsyncThunk(
             state.loading = false;
             state.error = action.payload
           })
+
+
+          .addCase(fetchSortPatients.pending,(state)=>{
+             state.loading= true;
+          })
+          .addCase(fetchSortPatients.fulfilled,(state, action)=>{
+             state.loading = false;
+             state.patinets = action.payload.patients;
+             state.totalPages = action.payload.totalPages;
+             state.currentPage = action.payload.currentPage;
+          })
+          .addCase(fetchSortPatients.rejected , (state ,action)=>{
+            state.loading = false;
+            state.error = action.payload
+          })
+
+
+          .addCase(exportPatientsThunk.pending, (state) => {
+            state.loading = true;
+          })
+          .addCase(exportPatientsThunk.fulfilled, (state, action) => {
+            state.loading = false;
+            state.exportFile = action.payload;
+          })
+          .addCase(exportPatientsThunk.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+          });
     }
   });
 
