@@ -1,20 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import cancelIcon from "../../../assets/cancel.png";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPatientDetails, UpdatePatientsDetailsData } from "../../../redux/slices/patinetSlice";
 export default function PatientDetailsComponent() {
   const [activeTab, setActiveTab] = useState("Patient Information");
   const { state } = useLocation();
   const [isEditMode, setIsEditMode] = useState(state?.isEditMode || false);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
+ const dispatch = useDispatch()
+  const {id} = useParams();
+
+  useEffect(()=>{
+    if(id){
+       dispatch(fetchPatientDetails(id))
+    }
+  },[dispatch , id])
+
+  const {patientsDetails , error , loading}=useSelector((state)=>state.patients);
+
+
+  
 
   const [formData, setFormData] = useState({
-    patientName: "",
-    patientNumber: "",
+    patientname: "",
+    phonenumber: "",
     gender: "",
     age: "",
-    villageDetails: "",
+    village: "",
     email: "",
     dob: "",
     registrationDate: "",
@@ -23,7 +38,7 @@ export default function PatientDetailsComponent() {
   const handleInputChange = (field, value) => {
     let processedValue = value;
 
-    if (field === 'patientNumber') {
+    if (field === 'phonenumber') {
       processedValue = processedValue.replace(/\D/g, '').slice(0, 10);
     }
     
@@ -42,24 +57,7 @@ export default function PatientDetailsComponent() {
     setFormData((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleSave = () => {
-    if (isSaving) return;
-    setIsSaving(true);
-  
-    // Validate and show first error
-    const isValid = validateFields();
-    
-    if (isValid) {
-      // Simulate API call
-      setTimeout(() => {
-        setIsEditMode(false);
-        toast.success("Saved successfully!", { toastId: 'success' });
-        setIsSaving(false);
-      }, 1000);
-    } else {
-      setIsSaving(false);
-    }
-  };
+
 
   const showError = (message, toastId) => {
     if (!toast.isActive(toastId)) {
@@ -68,15 +66,15 @@ export default function PatientDetailsComponent() {
   };
 
   const validateFields = () => {
-    if (!formData.patientName.trim()) {
+    if (!formData.patientname.trim()) {
       showError("Patient name is required.", 'name-error');
       return false;
     }
   
-    if (!formData.patientNumber) {
+    if (!formData.phonenumber) {
       showError("Phone number is required.", 'phone-required');
       return false;
-    } else if (formData.patientNumber.length !== 10) {
+    } else if (formData.phonenumber.length !== 10) {
       showError("Phone number must be 10 digits.", 'phone-length');
       return false;
     }
@@ -97,7 +95,7 @@ export default function PatientDetailsComponent() {
       }
     }
   
-    if (!formData.villageDetails.trim()) {
+    if (!formData.village.trim()) {
       showError("Village details are required.", 'village-error');
       return false;
     }
@@ -123,7 +121,52 @@ export default function PatientDetailsComponent() {
     return true;
   };
   
-  
+  useEffect(() => {
+    if (patientsDetails) {
+      setFormData({
+        patientname: patientsDetails.patientname || "",
+        phonenumber: patientsDetails.phonenumber || "",
+        gender: patientsDetails.gender || "",
+        age:patientsDetails.age || "",
+        village: patientsDetails.village || "",
+        email: patientsDetails.email || "",
+        dob: patientsDetails.dob ? new Date(patientsDetails.dob).toISOString().split("T")[0] : "",
+        registrationDate: patientsDetails.createdAt ? new Date(patientsDetails.createdAt).toISOString().split("T")[0] : "",
+        remarks: patientsDetails.remarks || "",
+      });
+    }
+  }, [patientsDetails]);
+
+  const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+    console.log("Attempting update with formData:", formData);
+
+    const isValid = validateFields();
+    if (isValid) {
+      try {
+        const result = await dispatch(
+          UpdatePatientsDetailsData({
+            patientId: patientsDetails._id,
+            updatedData: formData,
+          })
+        ).unwrap();
+        console.log("Update successful, result:", result);
+        toast.success("Update successfully!", { toastId: "success" });
+        // Navigate after update
+        navigate("/PatientRecord");
+      } catch (error) {
+        console.error("Update failed:", error);
+        toast.error("Update failed!");
+      } finally {
+        setIsSaving(false);
+        setIsEditMode(false);
+      }
+    } else {
+      console.log("Validation failed, update aborted.");
+      setIsSaving(false);
+    }
+  }
 
   const renderInputField = (label, field, placeholder, type = "text") => (
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
@@ -137,12 +180,12 @@ export default function PatientDetailsComponent() {
             className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
             placeholder={placeholder}
             maxLength={
-              field === 'patientNumber' ? 10 : 
+              field === 'phonenumber' ? 10 : 
               field === 'age' ? 2 : 
               undefined
             }
             inputMode={
-              (field === 'patientNumber' || field === 'age') ? 'numeric' : undefined
+              (field === 'phonenumber' || field === 'age') ? 'numeric' : undefined
             }
             disabled={isSaving}
           />
@@ -204,11 +247,11 @@ export default function PatientDetailsComponent() {
             </div>
             <div className="flex flex-col flex-1 shrink min-w-[240px]">
               <div className="text-2xl font-medium text-gray-800">
-                {formData.patientName || "Patient Name"}
+                {formData.patientname || "Patient Name"}
               </div>
               <div className="flex gap-3 mt-3 w-full text-xs text-neutral-500">
                 <div className="px-4 py-2 bg-stone-100">
-                  {formData.patientNumber || "#PatientNumber"}
+                  {formData.phonenumber || "#PatientNumber"}
                 </div>
                 <div className="px-4 py-2 bg-stone-100">Registered By ADMIN</div>
               </div>
@@ -278,12 +321,12 @@ export default function PatientDetailsComponent() {
   <ToastContainer position="top-center" autoClose={3000} />
   {activeTab === "Patient Information" && (
     <div className="flex flex-wrap gap-7">
-      {renderInputField("Name", "patientName", "Enter patient name")}
+      {renderInputField("Name", "patientname", "Enter patient name")}
       {renderInputField("Date of Birth", "dob", "", "date")}
-      {renderInputField("Phone Number", "patientNumber", "Enter 10-digit number", "tel")}
+      {renderInputField("Phone Number", "phonenumber", "Enter 10-digit number", "tel")}
       {renderInputField("Age", "age", "Enter age (1-99)", "number")}
       {renderInputField("Email", "email", "Enter email", "email")}
-      {renderInputField("Village Details", "villageDetails", "Enter village details")}
+      {renderInputField("Village Details", "village", "Enter village details")}
       {renderInputField("Registration Date", "registrationDate", "", "date")}
       
       <div className="flex flex-col items-start w-[45%]">

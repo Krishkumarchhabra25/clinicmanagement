@@ -20,129 +20,150 @@ import {
   createPatient, 
   fetchSearchPatients, 
   fetchAllPatients, 
-  fetchSortPatients
+  fetchSortPatients,
+  deletePatients
 } from "../../redux/slices/patinetSlice";
 
 
 
 const PatientList = () => {
- // Local state
- const [isModalOpen, setIsModalOpen] = useState(false);
- const [searchTerm, setSearchTerm] = useState("");
- const [searchType, setSearchType] = useState("patientname");
- const [sortBy, setSortBy] = useState("Name A-Z");
+  // Local state for modal, search, sort, and delete confirmation
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState("patientname");
+  const [sortBy, setSortBy] = useState("Name A-Z");
+  const [patientToDelete, setPatientToDelete] = useState(null);
 
+  // Get state from Redux
+  const { patinets, currentPage, loading, error, successMessage } =
+    useSelector((state) => state.patients);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
- const { patinets, currentPage, loading, error } = useSelector(
-   (state) => state.patients
- );
- const dispatch = useDispatch();
- const navigate = useNavigate();
+  // Open/close modal for adding a patient
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
- const openModal = () => setIsModalOpen(true);
- const closeModal = () => setIsModalOpen(false);
-
-
- useEffect(() => {
-   if (!searchTerm) {
-     dispatch(fetchAllPatients({ page: currentPage }));
-   }
- }, [dispatch, currentPage, searchTerm]);
-
-
- useEffect(() => {
-   if (error) {
-     toast.error(
-       typeof error === "object"
-         ? error.message || JSON.stringify(error)
-         : error,
-       {
-         position: "top-right",
-         autoClose: 5000,
-       }
-     );
-   }
- }, [error]);
-
-
- const handleSearch = (term, type) => {
-   setSearchTerm(term);
-   setSearchType(type);
- };
-
-
- const handleSearchEnter = () => {
-   if (searchTerm) {
-     dispatch(
-       fetchSearchPatients({
-         type: searchType,
-         query: searchTerm,
-         page: currentPage,
-       })
-     );
-   } else {
-     dispatch(fetchAllPatients({ page: currentPage }));
-   }
- };
-
-
- const handleSort = (sortValue) => {
-  setSortBy(sortValue);
-  if (sortValue !== "None") {
-    let sortByParam = "";
-    let sortOrderParam = "";
-    switch (sortValue) {
-      case "Name A-Z":
-        sortByParam = "name";
-        sortOrderParam = "asc";
-        break;
-      case "Name Z-A":
-        sortByParam = "name";
-        sortOrderParam = "desc";
-        break;
-      case "Registration Date (Newest to Oldest)":
-        sortByParam = "registrationDate";
-        sortOrderParam = "desc";
-        break;
-      case "Registration Date (Oldest to Newest)":
-        sortByParam = "registrationDate";
-        sortOrderParam = "asc";
-        break;
-      case "Mobile Number (Ascending)":
-        sortByParam = "phonenumber";
-        sortOrderParam = "asc";
-        break;
-      case "Mobile Number (Descending)":
-        sortByParam = "phonenumber";
-        sortOrderParam = "desc";
-        break;
-      default:
-        // If "None" or unexpected value, load all patients
-        dispatch(fetchAllPatients({ page: currentPage }));
-        return;
+  // Load all patients when no search term exists
+  useEffect(() => {
+    if (!searchTerm) {
+      dispatch(fetchAllPatients({ page: currentPage }));
     }
-    dispatch(
-      fetchSortPatients({
-        sortBy: sortByParam,
-        sortOrder: sortOrderParam,
-        page: currentPage,
-      })
-    );
-  } else {
-    // If no sorting is required, load all patients
-    dispatch(fetchAllPatients({ page: currentPage }));
-  }
-};
+  }, [dispatch, currentPage, searchTerm]);
 
+  // Display toast error when error occurs
+  useEffect(() => {
+    if (error) {
+      toast.error(
+        typeof error === "object"
+          ? error.message || JSON.stringify(error)
+          : error,
+        {
+          position: "top-right",
+          autoClose: 5000,
+        }
+      );
+    }
+  }, [error]);
 
- const handleRowClick = (id, isEditMode = false) => {
-   navigate(`/patientdetails/${id}`, { state: { isEditMode } });
- };
+  // Display toast success when deletion is successful
+  useEffect(() => {
+    if (successMessage) {
+      toast.success(successMessage, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    }
+  }, [successMessage]);
 
- const handleEditClick = (e, id) => {
-   e.stopPropagation();
-   handleRowClick(id, true);
- };
+  const handleSearch = (term, type) => {
+    setSearchTerm(term);
+    setSearchType(type);
+  };
+
+  const handleSearchEnter = () => {
+    if (searchTerm) {
+      dispatch(
+        fetchSearchPatients({
+          type: searchType,
+          query: searchTerm,
+          page: currentPage,
+        })
+      );
+    } else {
+      dispatch(fetchAllPatients({ page: currentPage }));
+    }
+  };
+
+  const handleSort = (sortValue) => {
+    setSortBy(sortValue);
+    if (sortValue !== "None") {
+      let sortByParam = "";
+      let sortOrderParam = "";
+      switch (sortValue) {
+        case "Name A-Z":
+          sortByParam = "name";
+          sortOrderParam = "asc";
+          break;
+        case "Name Z-A":
+          sortByParam = "name";
+          sortOrderParam = "desc";
+          break;
+        case "Registration Date (Newest to Oldest)":
+          sortByParam = "registrationDate";
+          sortOrderParam = "desc";
+          break;
+        case "Registration Date (Oldest to Newest)":
+          sortByParam = "registrationDate";
+          sortOrderParam = "asc";
+          break;
+        case "Mobile Number (Ascending)":
+          sortByParam = "phonenumber";
+          sortOrderParam = "asc";
+          break;
+        case "Mobile Number (Descending)":
+          sortByParam = "phonenumber";
+          sortOrderParam = "desc";
+          break;
+        default:
+          // If "None" or unexpected value, load all patients
+          dispatch(fetchAllPatients({ page: currentPage }));
+          return;
+      }
+      dispatch(
+        fetchSortPatients({
+          sortBy: sortByParam,
+          sortOrder: sortOrderParam,
+          page: currentPage,
+        })
+      );
+    } else {
+      // If no sorting is required, load all patients
+      dispatch(fetchAllPatients({ page: currentPage }));
+    }
+  };
+
+  const handleRowClick = (id, isEditMode = false) => {
+    navigate(`/pateintdetails/${id}`, { state: { isEditMode } });
+  };
+
+  const handleEditClick = (e, id) => {
+    e.stopPropagation();
+    handleRowClick(id, true);
+  };
+
+  // When the three‑dot icon is clicked, open a confirmation modal
+  const handleShowDeleteModal = (id) => {
+    setPatientToDelete(id);
+  };
+
+  // When confirmed, dispatch the delete thunk
+  const handleConfirmDelete = () => {
+    if (patientToDelete) {
+      dispatch(deletePatients({ patientId: patientToDelete }));
+      setPatientToDelete(null);
+    }
+  };
 
   return (
     <div>
@@ -177,15 +198,15 @@ const PatientList = () => {
           </button>
         </div>
       </div>
-    
+
       {/* Main content area */}
       <div className="flex flex-col justify-center px-7 py-4 bg-white rounded-3xl max-md:px-5">
         <div className="flex flex-col w-full max-md:max-w-full">
           <PatientListHeader
-          searchTerm={searchTerm}
-          onSearch={handleSearch}
-          onSort={handleSort}
-          onSearchEnter={handleSearchEnter}  // This prop triggers search on Enter
+            searchTerm={searchTerm}
+            onSearch={handleSearch}
+            onSort={handleSort}
+            onSearchEnter={handleSearchEnter} // Trigger search on Enter
           />
 
           {loading ? (
@@ -210,7 +231,6 @@ const PatientList = () => {
                       <tr
                         key={patient._id}
                         className="border-b border-gray-200 hover:bg-gray-50"
-                        onClick={() => handleRowClick(patient._id)}
                       >
                         <td className="py-3 px-4">{patient._id}</td>
                         <td className="py-3 px-4">{patient.patientname}</td>
@@ -233,11 +253,17 @@ const PatientList = () => {
                                 className="object-contain w-6"
                               />
                             </button>
-                            <button aria-label="Delete patient">
+                            {/* Clicking the three‑dot icon opens the delete confirmation */}
+                            <button
+                              aria-label="Open delete confirmation"
+                              onClick={() =>
+                                handleShowDeleteModal(patient._id)
+                              }
+                            >
                               <img
                                 loading="lazy"
                                 src={dotIcon}
-                                alt="Delete"
+                                alt="Options"
                                 className="object-contain w-6"
                               />
                             </button>
@@ -259,8 +285,32 @@ const PatientList = () => {
           )}
         </div>
       </div>
-    
-      {/* Sidebar Modal */}
+
+      {/* Delete Confirmation Modal */}
+      {patientToDelete && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-4">Confirm Delete</h2>
+            <p>Are you sure you want to delete this patient?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                className="mr-2 px-4 py-2 bg-gray-300 rounded"
+                onClick={() => setPatientToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded"
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sidebar Modal for Adding Patient */}
       <PatientModal isOpen={isModalOpen} onClose={closeModal} />
 
       {/* Toast Container */}
@@ -273,12 +323,12 @@ const PatientList = () => {
 
 
 
-
   export const PatientModal = ({ isOpen, onClose }) => {
     const initialFormData = {
       patientname: "",
       phonenumber: "",
       gender: "",
+      age:"",
       village: "",
       email: "",
       dob: "",
@@ -295,6 +345,7 @@ const PatientList = () => {
       if (!formData.phonenumber) return "Patient Number is required.";
       if (!/^\d{10}$/.test(formData.phonenumber)) return "Patient Number must be 10 digits.";
       if (!formData.gender) return "Gender is required.";
+      if (!formData.age) return "age is required.";
       if (!formData.village) return "Village Details are required.";
       if (formData.village.length > 60) return "Village Details can be a maximum of 60 characters.";
       if (!formData.email) return "Email is required.";
@@ -340,6 +391,7 @@ const PatientList = () => {
       { label: "Patient Name", field: "patientname", type: "text", placeholder: "Enter patient name" },
       { label: "Patient Number", field: "phonenumber", type: "tel", placeholder: "Enter 10-digit number" },
       { label: "Gender", field: "gender", type: "select", options: ["male", "female", "other"] },
+      { label: "Age", field: "age", type: "number", placeholder: "Enter your age" },
       { label: "Village Details", field: "village", type: "text", placeholder: "Enter village details (max 60 characters)" },
       { label: "Email", field: "email", type: "email", placeholder: "Enter email" },
       { label: "Date of Birth", field: "dob", type: "date" },

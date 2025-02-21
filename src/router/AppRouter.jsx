@@ -4,13 +4,8 @@ import * as routesKey from "../constants/routes"
 import * as pages from "../pages/index"
 import AuthCheck from "../auth/AuthCheck"
 import PublicRoute from "../auth/PublicRoute"
-import { useDispatch } from "react-redux"
-import { useEffect } from "react"
-import { setAuthenticated } from "../redux/slices/authSlice"
-import Cookies from "js-cookie";
 
 const AppRouter = () => {
- 
   return (
     <Router>
     <Routes>

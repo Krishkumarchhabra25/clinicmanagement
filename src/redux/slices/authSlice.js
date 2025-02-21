@@ -9,12 +9,13 @@ export const loginUser = createAsyncThunk(
       const response = await axiosInstance.post("/admin/login-admin", credentials);
       if (response.data.success) {
         const token = response.data.token;
+        const admin = response.data.admin; // The returned user details
 
-        // Store token in cookies
-        Cookies.set("token", token, { expires: 7 }); // Expires in 7 days
-        setAuthToken(token); // Set axios authorization header
+        // Store token in cookies for persistence
+        Cookies.set("token", token, { expires: 7 });
+        setAuthToken(token); // Set axios authorization header for subsequent requests
 
-        return { token, message: response.data.message };
+        return { token, admin, message: response.data.message };
       } else {
         return rejectWithValue(response.data.message || "Login Failed");
       }
@@ -27,8 +28,9 @@ export const loginUser = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    token: Cookies.get("token") || null, // Read token from cookies
-    isAuthenticated: !!Cookies.get("token"), // True if token exists
+    token: Cookies.get("token") || null,
+    admin: null, // Store admin/support user details here
+    isAuthenticated: !!Cookies.get("token"),
     loading: false,
     error: null,
     message: null,
@@ -36,15 +38,16 @@ const authSlice = createSlice({
   reducers: {
     logoutUser: (state) => {
       state.isAuthenticated = false;
-      state.message = null;
       state.token = null;
-      Cookies.remove("token"); // Remove token from cookies
+      state.admin = null;
+      state.message = null;
+      Cookies.remove("token");
     },
     setAuthenticated: (state, action) => {
-        if (state.isAuthenticated !== action.payload) {
-          state.isAuthenticated = action.payload;
-        }
-      },
+      if (state.isAuthenticated !== action.payload) {
+        state.isAuthenticated = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -55,8 +58,9 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = !!action.payload.token;
         state.token = action.payload.token;
+        state.admin = action.payload.admin;
+        state.isAuthenticated = !!action.payload.token;
         state.message = action.payload.message;
       })
       .addCase(loginUser.rejected, (state, action) => {

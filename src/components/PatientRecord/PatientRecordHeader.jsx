@@ -62,12 +62,17 @@ function PatientListHeader({ searchTerm, onSearch, onSort, onSearchEnter }) {
 
   const handleExport = async () => {
     try {
-    
-      const blob = await dispatch(exportPatientsThunk()).unwrap();
-
-      const url = window.URL.createObjectURL(new Blob([blob], { 
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      }));
+      const response = await fetch("/api/export-patients", {
+        method: "GET",
+      });
+  
+      if (!response.ok) throw new Error("Failed to export patients");
+  
+      // Convert response to Blob
+      const blob = await response.blob();
+  
+      // Create URL and download file
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", "patients.xlsx");
@@ -77,10 +82,11 @@ function PatientListHeader({ searchTerm, onSearch, onSort, onSearchEnter }) {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Export failed:", error);
-      toast.error("Failed to export patients.");
     }
   };
-
+  
+  
+  
   // Determine placeholder text based on the selected filter option
   const getPlaceholderText = () => {
     const option = searchOptions.find((opt) => opt.value === selectedOption);

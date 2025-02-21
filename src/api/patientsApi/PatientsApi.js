@@ -42,6 +42,33 @@ export const addPatient = async(patinetData)=>{
   }
 }
 
+export const updatePatients = async(patientId , updatPatientData)=>{
+  try {
+    const response = await axiosInstance.put(`/patient/update-patient/${patientId}` , updatPatientData);
+    return response.data
+  } catch (error) {
+    throw error.response?.data || "Something went wrong"
+  }
+}
+
+export const detailsPatient = async(patientId)=>{
+    try {
+       const response = await axiosInstance.get(`/patient/patient/${patientId}`);
+       return response.data
+    } catch (error) {
+       throw error.response?.data || "Something went wrong"
+    }
+}
+
+export const DeletePatients = async(patientId)=>{
+  try {
+    const response = await axiosInstance.delete(`/patient/delete-patient/${patientId}`);
+    return response.data
+  } catch (error) {
+      throw error.response?.data || "Something went wrong"
+  }
+}
+
 export const exportPatients = async () => {
   try {
     const response = await axiosInstance.get(`/patient/export-patient`, {

@@ -1,107 +1,150 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import cancelIcon from "../../assets/cancel.png";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getAdminProfile, updatePersonalInfoThunk } from '../../redux/slices/profileSettingSlice';
+import { useDispatch , useSelector } from "react-redux";
 
 export function AdminProfileSetting() {
   const { state } = useLocation();
-  const [isEditMode, setIsEditMode] = useState(state?.isEditMode || false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Get the profile data from Redux store
+  const {profile} = useSelector((state) => state.profile);
+
+  // Local state for the form data.
   const [formData, setFormData] = useState({
-    patientName: "",
-    patientNumber: "",
+    patientName: "",       // Maps to fullname
+    patientNumber: "",     // Maps to phoneNumber
+    villageDetails: "",    // Maps to address
+    dob: "",               // Maps to dateOfBirth (YYYY-MM-DD)
     gender: "",
+    // Display-only fields
     age: "",
-    villageDetails: "",
     email: "",
-    dob: "",
     registrationDate: "",
   });
 
-  // Generic function for handling input changes
+  const [isEditMode, setIsEditMode] = useState(state?.isEditMode || false);
+
+  // Fetch the admin profile on component mount.
+  useEffect(() => {
+    dispatch(getAdminProfile());
+  }, [dispatch]);
+
+  // When the profile is fetched, update the local form state.
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        patientName: profile.personalInfo?.fullname || "",
+        patientNumber: profile.personalInfo?.phoneNumber || "",
+        villageDetails: profile.personalInfo?.address || "",
+        age:profile.personalInfo?.age || "",
+        dob: profile.personalInfo?.dateOfBirth ? profile.personalInfo.dateOfBirth.split('T')[0] : "",
+        gender: profile.personalInfo?.gender || "",
+        email: profile.email || "",
+        registrationDate: "", // Registration date not provided by API
+      });
+    }
+  }, [profile]);
+
+  // Generic function for handling input changes.
   const handleInputChange = (field, value) => {
     let processedValue = value;
-    
-    // Add input type-specific handling
-    switch(field) {
+
+    // Input-specific processing.
+    switch (field) {
       case 'patientNumber':
-        // Allow only numbers and limit to 10 digits
+        // Allow only numbers and limit to 10 digits.
         processedValue = value.replace(/\D/g, '').slice(0, 10);
         break;
-        
       case 'age':
-        // Allow only numbers and limit to 2 digits
+        // Allow only numbers and limit to 2 digits.
         processedValue = value.replace(/\D/g, '').slice(0, 2);
         break;
-        
       case 'patientName':
-        // Allow only letters and spaces
+        // Allow only letters, spaces, apostrophes, and dashes.
         processedValue = value.replace(/[^a-zA-Z\s'-]/g, '');
         break;
-        
-   
+      default:
+        processedValue = value;
     }
-  
-    setFormData(prev => ({ ...prev, [field]: processedValue }));
+
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
   };
-  // Generic function for canceling individual fields
+
+  // Function for canceling a field's value.
   const handleCancelField = (field) => {
     handleInputChange(field, "");
   };
 
-  const handleSave = () => {
-    if (validateFields()) {
-      setIsEditMode(false);
-      toast.success("Patient information saved successfully!");
-    }
-  };
-
-  // Consolidated validation for all fields
+  // Validate required fields for personal info update.
   const validateFields = () => {
-    toast.dismiss(); // Dismiss existing toasts before showing a new one
-  
+    toast.dismiss();
     const requiredFields = [
-      { field: 'patientName', message: " name is required." },
-      { field: 'patientNumber', message: "Patient number is required." },
-      { field: 'age', message: "Age is required." },
-      { field: 'email', message: "Email is required." },
-      { field: 'gender', message: "Gender is required." },
+      { field: 'patientName', message: "Name is required." },
+      { field: 'patientNumber', message: "Phone number is required." },
+      { field: 'villageDetails', message: "Address is required." },
       { field: 'dob', message: "Date of birth is required." },
-      { field: 'registrationDate', message: "Registration date is required." },
-      { field: 'villageDetails', message: "Village details are required." }
+      {field:"age" , message:"Age is required"},
+      { field: 'gender', message: "Gender is required." },
     ];
-  
+
     for (const item of requiredFields) {
       if (!formData[item.field]) {
-        toast.error(item.message, { toastId: "validation-error" }); // Show only one toast at a time
+        toast.error(item.message, { toastId: "validation-error" });
         return false;
       }
     }
-  
-    // Additional specific format validations
+
+    // Validate that the phone number is numeric.
     if (!/^\d+$/.test(formData.patientNumber)) {
-      toast.error(" number must be numeric.", { toastId: "validation-error" });
+      toast.error("Phone number must be numeric.", { toastId: "validation-error" });
       return false;
     }
-    if (!/^\d+$/.test(formData.age)) {
-      toast.error("Age must be numeric.", { toastId: "validation-error" });
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      toast.error("Invalid email address.", { toastId: "validation-error" });
-      return false;
-    }
-  
+
     return true;
   };
-  
-  
 
-  // Render function for input fields, including dropdown for gender
+  // Save handler that calls the update API endpoint using try/catch.
+  const handleSave = async () => {
+    if (validateFields()) {
+      try {
+        // Map form fields to the API payload.
+        const payload = {
+          fullname: formData.patientName,
+          phoneNumber: formData.patientNumber,
+          address: formData.villageDetails,
+          dateOfBirth: formData.dob,
+          age:formData.age,
+          gender: formData.gender,
+        };
+        const updatedInfo = await dispatch(updatePersonalInfoThunk(payload)).unwrap();
+
+        // Optionally update local form data with API response.
+        setFormData((prev) => ({
+          ...prev,
+          patientName: updatedInfo.fullname || prev.patientName,
+          patientNumber: updatedInfo.phoneNumber || prev.patientNumber,
+          villageDetails: updatedInfo.address || prev.villageDetails,
+          age:updatedInfo.age || prev.age,
+          dob: updatedInfo.dateOfBirth ? updatedInfo.dateOfBirth.split('T')[0] : prev.dob,
+          gender: updatedInfo.gender || prev.gender,
+        }));
+        setIsEditMode(false);
+        toast.success("Personal information updated successfully!");
+      } catch (error) {
+        console.error("Error updating personal info:", error);
+        toast.error("Failed to update personal information.");
+      }
+    }
+  };
+
+  // Render function for input fields (supports both input and select).
   const renderField = (label, field, placeholder, type = "text") => (
-    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+    <div className="flex flex-col items-start w-full md:w-[45%] relative" key={field}>
       <label className="text-gray-600 font-medium mb-1 pl-2">{label}</label>
       <div className="relative w-full">
         {isEditMode ? (
@@ -123,16 +166,8 @@ export function AdminProfileSetting() {
               onChange={(e) => handleInputChange(field, e.target.value)}
               className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
               placeholder={placeholder}
-              inputMode={
-                field === 'patientNumber' || field === 'age' 
-                  ? 'numeric' 
-                  : 'text'
-              }
-              maxLength={
-                field === 'patientNumber' ? 10 :
-                field === 'age' ? 2 :
-                undefined
-              }
+              inputMode={field === 'patientNumber' || field === 'age' ? 'numeric' : 'text'}
+              maxLength={field === 'patientNumber' ? 10 : field === 'age' ? 2 : undefined}
             />
           )
         ) : (
@@ -152,36 +187,36 @@ export function AdminProfileSetting() {
       </div>
     </div>
   );
-  
 
   const toggleEditMode = () => {
-    setIsEditMode(prev => !prev);
+    setIsEditMode((prev) => !prev);
   };
 
   return (
     <div>
       <ToastContainer />
-      {/* Support Management */}
+      {/* Admin Management Header */}
       <div className="flex items-center justify-between mx-2 mb-6">
         <div className="flex items-center">
           <div className="h-[48px] w-[9px] border-e-2 bg-[#FF7B54]" />
-          <h1 className="text-[24px] text-[#FF7B54] mx-2">Support Management</h1>
+          <h1 className="text-[24px] text-[#FF7B54] mx-2">Admin Management</h1>
         </div>
       </div>
 
-      {/* Profile Information */}
+      {/* Profile Information Section */}
       <div className="flex flex-col mx-2 mb-10 gap-4">
         <label className="text-gray-600 font-medium mb-1">Username</label>
         <div className="bg-transparent border-none break-words text-black max-w-[434px] flex justify-between items-center">
-          <div className="flex-1">Sarthak Ranjan Hota</div>
+          <div className="flex-1">{profile?.username || "N/A"}</div>
         </div>
         <label className="text-gray-600 font-medium mb-1">Password</label>
         <div className="bg-transparent border-none break-words text-black max-w-[434px] flex justify-between items-center">
-          <div className="flex-1">sarthakranjanhota@gmail.com</div>
+          {/* Since password is typically not returned, adjust as needed */}
+          <div className="flex-1">{profile?.password || "********"}</div>
         </div>
       </div>
 
-      {/* Personal Information */}
+      {/* Personal Information Section */}
       <div className="flex items-center justify-between mx-2 mb-6">
         <div className="flex items-center">
           <div className="h-[48px] w-[9px] border-e-2 bg-[#FF7B54]" />
@@ -219,7 +254,7 @@ export function AdminProfileSetting() {
         </div>
       </div>
 
-      {/* Input Fields */}
+      {/* Input Fields Section */}
       <div className="flex flex-wrap gap-7 w-full">
         {renderField("Name", "patientName", "Enter patient name")}
         {renderField("Phone Number", "patientNumber", "Enter patient number", "tel")}
@@ -233,3 +268,5 @@ export function AdminProfileSetting() {
     </div>
   );
 }
+
+

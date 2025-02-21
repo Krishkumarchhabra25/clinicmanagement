@@ -1,65 +1,69 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import "react-clock/dist/Clock.css";
 import Switch from "react-switch";
 import Template from "../../components/common/Template";
 import { FaClock } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchAvailability, updateAvailabilityStatus } from "../../redux/slices/availabilitySlice";
 
-const scheduleData = [
-  { day: "Sunday", startTime: "09:00", endTime: "20:00", isWorking: true },
-  { day: "Monday", startTime: "09:00", endTime: "20:00", isWorking: true },
-  { day: "Tuesday", startTime: "09:00", endTime: "21:00", isWorking: true },
-  { day: "Wednesday", startTime: "09:00", endTime: "20:00", isWorking: true },
-  { day: "Thursday", startTime: "", endTime: "20:00", isWorking: true },
-  { day: "Friday", startTime: "", endTime: "", isWorking: true },
-  { day: "Saturday", startTime: "", endTime: "", isWorking: false },
-];
 
 const Availability = () => {
-  const [schedule, setSchedule] = useState(scheduleData);
+/*   const [schedule, setSchedule] = useState(scheduleData);
 
   const updateSchedule = (index, key, value) => {
     const newSchedule = [...schedule];
     newSchedule[index][key] = value;
     setSchedule(newSchedule);
   };
+ */
 
+  const dispatch = useDispatch();
+  const { schedule, loading } = useSelector((state) => state.availability);
+
+  useEffect(() => {
+    console.log("Dispatching fetchAvailability");
+    dispatch(fetchAvailability());
+  }, [dispatch]);
+
+  const updateSchedule = (index, key, value) => {
+    const updatedData = { ...schedule[index], [key]: value };
+  
+    // Dispatch Redux action to update API & state
+    dispatch(updateAvailabilityStatus({ id: schedule[index]._id, updatedData }));
+  };
+  
+  if (loading) return <p>Loading...</p>;
   return (
     <Template>
-      <div className="flex overflow-hidden flex-col px-6 py-5 bg-white rounded-3xl max-md:px-5">
-        <div className="self-start text-base font-medium text-neutral-400">
-          Add Your Availability
-        </div>
-        <div className="flex flex-col mt-10 w-full max-md:max-w-full">
-          <div className="flex flex-wrap gap-10 justify-between items-start w-full max-md:max-w-full">
-            {schedule.map((daySchedule, index) => (
-              <DaySchedule
-                key={daySchedule.day}
-                index={index}
-                schedule={daySchedule}
-                updateSchedule={updateSchedule}
-              />
-            ))}
-          </div>
+    <div className="flex overflow-hidden flex-col px-6 py-5 bg-white rounded-3xl max-md:px-5">
+      <div className="self-start text-base font-medium text-neutral-400">Add Your Availability</div>
+      <div className="flex flex-col mt-10 w-full max-md:max-w-full">
+        <div className="flex flex-wrap gap-10 justify-between items-start w-full max-md:max-w-full">
+          {schedule.map((daySchedule, index) => (
+            <DaySchedule key={daySchedule._id} index={index} schedule={daySchedule} updateSchedule={updateSchedule} />
+          ))}
         </div>
       </div>
-    </Template>
+    </div>
+  </Template>
   );
 };
 
 export default Availability;
 
 const DaySchedule = ({ index, schedule, updateSchedule }) => {
-  const { day, isWorking, startTime, endTime } = schedule;
+  // Destructure using correct key from API
+  const { day, isworking, startTime, endTime } = schedule;
 
   return (
     <div className="flex flex-col min-w-[240px] w-[485px] max-md:max-w-full">
       <div className="flex flex-wrap gap-10 justify-between items-center w-full max-md:max-w-full">
         <div className="self-stretch my-auto text-lg text-neutral-600">{day}</div>
         <Switch
-          onChange={() => updateSchedule(index, "isWorking", !isWorking)}
-          checked={isWorking}
+          onChange={() => updateSchedule(index, "isworking", !isworking)}
+          checked={isworking} // Ensure correct state mapping
           offColor="#E5E5E5"
           onColor="#E5E5E5"
           offHandleColor="#162832"
@@ -71,7 +75,7 @@ const DaySchedule = ({ index, schedule, updateSchedule }) => {
           width={48}
         />
       </div>
-      {isWorking ? (
+      {isworking ? (
         <TimeSlot
           startTime={startTime}
           endTime={endTime}
