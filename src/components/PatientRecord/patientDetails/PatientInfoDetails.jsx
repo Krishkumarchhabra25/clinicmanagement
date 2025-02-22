@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import cancelIcon from "../../../assets/cancel.png";
 import { useDispatch, useSelector } from "react-redux";
@@ -152,7 +152,7 @@ export default function PatientDetailsComponent() {
           })
         ).unwrap();
         console.log("Update successful, result:", result);
-        toast.success("Update successfully!", { toastId: "success" });
+        toast.success("Update successfully!");
         // Navigate after update
         navigate("/PatientRecord");
       } catch (error) {
@@ -318,7 +318,6 @@ export default function PatientDetailsComponent() {
         {/* Patient Details */}
        {/* Patient Details */}
 <div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
-  <ToastContainer position="top-center" autoClose={3000} />
   {activeTab === "Patient Information" && (
     <div className="flex flex-wrap gap-7">
       {renderInputField("Name", "patientname", "Enter patient name")}

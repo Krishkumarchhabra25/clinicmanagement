@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import cancelIcon from "../../assets/cancel.png";
 import { useLocation } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { getClinicDetails, updateAddress, updateBasicInfo } from '../../redux/slices/clinicSlice';
 
 const ClinicProfileSetting = () => {
+  const dispatch = useDispatch();
   const { state } = useLocation();
+
+  // Get clinic data from redux store
+  const { basicInfo, address, loading, error } = useSelector((state) => state.clinic);
+
+  // Local state for edit modes and form data
   const [editModes, setEditModes] = useState({
     basicInfo: state?.isEditMode || false,
     addressInfo: state?.isEditMode || false,
@@ -14,7 +22,7 @@ const ClinicProfileSetting = () => {
     basicInfo: {
       clinicName: "",
       tagline: "",
-      companyLogo: ""
+      companyLogo: "",
     },
     addressInfo: {
       streetAddress1: "",
@@ -22,77 +30,126 @@ const ClinicProfileSetting = () => {
       city: "",
       postalCode: "",
       state: "",
-      country: ""
-    }
+      country: "",
+    },
   });
 
+  // On mount, fetch the clinic details
+  useEffect(() => {
+    dispatch(getClinicDetails());
+  }, [dispatch]);
+
+  // When redux store updates, populate the form data for basic info
+  useEffect(() => {
+    if (basicInfo && Object.keys(basicInfo).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        basicInfo: {
+          clinicName: basicInfo.clinicName || "",
+          tagline: basicInfo.tagline || "",
+          companyLogo: basicInfo.logo?.url || "",
+        },
+      }));
+    }
+  }, [basicInfo]);
+
+  // Populate the form data for address details when available
+  useEffect(() => {
+    if (address && Object.keys(address).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        addressInfo: {
+          streetAddress1: address.streetAddress1 || "",
+          streetAddress2: address.streetAddress2 || "",
+          city: address.city || "",
+          postalCode: address.postalCode || "",
+          state: address.state || "",
+          country: address.country || "",
+        },
+      }));
+    }
+  }, [address]);
+
   const handleInputChange = (section, field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [section]: {
         ...prev[section],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
   const validateBasicInfo = () => {
-    toast.dismiss(); // Dismiss existing toasts before showing a new one
-  
+    toast.dismiss();
     const fields = [
       { key: 'clinicName', label: 'Clinic Name' },
       { key: 'tagline', label: 'Tagline' },
-      { key: 'companyLogo', label: 'Company Logo' }
+      { key: 'companyLogo', label: 'Company Logo' },
     ];
-  
     for (const field of fields) {
       if (!formData.basicInfo[field.key]) {
         toast.error(`${field.label} is required.`, { toastId: "validation-error" });
         return false;
       }
     }
-  
     return true;
   };
 
   const validateAddressInfo = () => {
-    toast.dismiss(); // Dismiss existing toasts before showing a new one
-  
+    toast.dismiss();
     const addressFields = [
       { key: 'streetAddress1', label: 'Street Address 1' },
       { key: 'streetAddress2', label: 'Street Address 2' },
       { key: 'city', label: 'City' },
       { key: 'postalCode', label: 'Postal Code' },
       { key: 'state', label: 'State' },
-      { key: 'country', label: 'Country' }
+      { key: 'country', label: 'Country' },
     ];
-  
     for (const field of addressFields) {
       if (!formData.addressInfo[field.key]) {
         toast.error(`${field.label} is required.`, { toastId: "validation-error" });
         return false;
       }
     }
-  
     return true;
   };
+
+  // Handle saving updated data (using only the update APIs)
   const handleSave = (section) => {
-    toast.dismiss(); // Dismiss previous toasts before validation
-  
+    toast.dismiss();
     const validators = {
-      'basicInfo': validateBasicInfo,
-      'addressInfo': validateAddressInfo
+      basicInfo: validateBasicInfo,
+      addressInfo: validateAddressInfo,
     };
-  
+
     if (validators[section]()) {
-      setEditModes(prev => ({ ...prev, [section]: false }));
-      toast.success(`${section.replace(/([A-Z])/g, ' $1').trim()} saved successfully!`, { toastId: "success-message" });
+      if (section === 'basicInfo') {
+        dispatch(updateBasicInfo(formData.basicInfo))
+          .unwrap()
+          .then(() => {
+            setEditModes((prev) => ({ ...prev, basicInfo: false }));
+            toast.success("Basic Information updated successfully!", { toastId: "success-message" });
+          })
+          .catch(() => {
+            toast.error("Failed to update Basic Information");
+          });
+      } else if (section === 'addressInfo') {
+        dispatch(updateAddress(formData.addressInfo))
+          .unwrap()
+          .then(() => {
+            setEditModes((prev) => ({ ...prev, addressInfo: false }));
+            toast.success("Address updated successfully!", { toastId: "success-message" });
+          })
+          .catch(() => {
+            toast.error("Failed to update Address Information");
+          });
+      }
     }
   };
-  
 
   const handleCancel = (section) => {
-    setEditModes(prev => ({ ...prev, [section]: false }));
+    setEditModes((prev) => ({ ...prev, [section]: false }));
   };
 
   const handleFieldCancel = (section, field) => {
@@ -103,7 +160,7 @@ const ClinicProfileSetting = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.match(/image.(jpeg|jpg|png)/)) {
+    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
       toast.error('Only JPG, JPEG, and PNG files are allowed');
       return;
     }
@@ -140,9 +197,7 @@ const ClinicProfileSetting = () => {
                     className="w-full h-full object-cover rounded-lg"
                   />
                 ) : (
-                  <span className="text-gray-400 text-center text-sm">
-                    Click to upload
-                  </span>
+                  <span className="text-gray-400 text-center text-sm">Click to upload</span>
                 )}
               </label>
             </div>
@@ -191,6 +246,9 @@ const ClinicProfileSetting = () => {
 
   return (
     <div>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
       {/* Basic Information */}
       <div className="flex items-center justify-between mx-2 mb-6">
         <div className="flex items-center">
@@ -217,7 +275,7 @@ const ClinicProfileSetting = () => {
             <button
               aria-label="Edit Basic Information"
               className="p-2 rounded-full hover:bg-gray-200 transition"
-              onClick={() => setEditModes(prev => ({ ...prev, basicInfo: true }))}
+              onClick={() => setEditModes((prev) => ({ ...prev, basicInfo: true }))}
             >
               <img
                 src="https://cdn.builder.io/api/v1/image/assets/TEMP/27b25ccc7cf50ff795844cd0bf3810da438b9aba9011a555a2d83af0274ad469"
@@ -261,7 +319,7 @@ const ClinicProfileSetting = () => {
             <button
               aria-label="Edit Address Details"
               className="p-2 rounded-full hover:bg-gray-200 transition"
-              onClick={() => setEditModes(prev => ({ ...prev, addressInfo: true }))}
+              onClick={() => setEditModes((prev) => ({ ...prev, addressInfo: true }))}
             >
               <img
                 src="https://cdn.builder.io/api/v1/image/assets/TEMP/27b25ccc7cf50ff795844cd0bf3810da438b9aba9011a555a2d83af0274ad469"

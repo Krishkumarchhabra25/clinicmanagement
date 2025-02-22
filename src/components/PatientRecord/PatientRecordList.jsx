@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 // Toast notifications
-import { ToastContainer, toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Components
@@ -369,12 +369,13 @@ const PatientList = () => {
       }
 
       try {
-        await dispatch(createPatient(formData)).unwrap()
+        const response = await dispatch(createPatient(formData)).unwrap(); // Store response
+        console.log("Response from createPatient:", response); // Log the response
         toast.success("Patient details saved successfully!");
         setFormData(initialFormData);
         onClose();
       } catch (error) {
-        toast.error("Failed to save patient details");
+        toast.error("Failed to save patient details" , error);
       } finally {
         setIsSaving(false);
       }
@@ -400,7 +401,7 @@ const PatientList = () => {
 
     return (
       <div className="fixed inset-0 z-50 flex justify-end items-center">
-        <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+      
         <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
 
         <div className="relative w-[400px] h-[calc(100%-40px)] bg-white rounded-l-3xl rounded-r-3xl shadow-lg p-6 overflow-y-auto mr-5 mt-5 mb-5">

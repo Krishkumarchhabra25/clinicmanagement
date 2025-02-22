@@ -2,7 +2,7 @@
 import  { useState } from 'react'
 
 import {AdminProfileSetting} from './AdminProfileSetting';
-import SupportProfileSetting from './SupportProfileSetting';
+import {SupportProfileSetting} from './SupportProfileSetting';
 import ClinicProfileSetting from './ClinicProfileSetting';
 
 export default function Profile() {

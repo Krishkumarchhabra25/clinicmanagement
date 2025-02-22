@@ -3,6 +3,8 @@ import authReducer from "./slices/authSlice";
 import patientsReducer from "./slices/patinetSlice"; // Ensure this path is correcti
 import availabilitySlice from "./slices/availabilitySlice";
 import profileSettingSlice from  "./slices/profileSettingSlice"
+import ClinicUserSlice from "./slices/clinicSlice"
+import SupportSlice from "./slices/supportSlice"
 import Cookies from "js-cookie";
 
 const preloadedState = {
@@ -18,7 +20,9 @@ export const store = configureStore({
     auth: authReducer,
     patients: patientsReducer,
     availability:availabilitySlice,
-    profile: profileSettingSlice
+    profile: profileSettingSlice,
+    clinic:ClinicUserSlice,
+    support:SupportSlice,
   },
    preloadedState, 
    middleware: (getDefaultMiddleware) =>
