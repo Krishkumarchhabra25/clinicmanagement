@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
 import "react-toastify/dist/ReactToastify.css"; // Import toast styles
-import { notifyError, notifySuccess } from "../../utils/toastHelper";
+import { notifyError, notifySuccess } from "../../utils/ToastHelper";
 
 const LoginFormComponents = () => {
   const navigate = useNavigate();
