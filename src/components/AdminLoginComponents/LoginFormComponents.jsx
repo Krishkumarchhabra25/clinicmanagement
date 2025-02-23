@@ -3,9 +3,8 @@ import { InputField } from "../common/InputFiled/InputFiled";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
-import "react-toastify/dist/ReactToastify.css"; // Import toast styles
-import { notifyError, notifySuccess } from "../../utils/ToastHelper";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const LoginFormComponents = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -28,12 +27,12 @@ const LoginFormComponents = () => {
     e.preventDefault();
     const result = await dispatch(loginUser(formData));
     if (loginUser.fulfilled.match(result)) {
-      notifySuccess("Login Successful!", { position: "top-right" });
+      toast.success("Login Successful!", { position: "top-right" });
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);
     } else if (loginUser.rejected.match(result)) {
-      notifyError(result.payload || "Login Failed", { position: "top-right" });
+      toast.error(result.payload || "Login Failed");
     }
   };
 
