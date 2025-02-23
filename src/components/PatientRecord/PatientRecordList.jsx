@@ -44,14 +44,15 @@ const PatientList = () => {
   const { patinets, currentPage, loading, error, successMessage } =
     useSelector((state) => state.patients);
 
-    const { admin } = useSelector((state) => state.auth);
+  const { admin } = useSelector((state) => state.auth);
+  console.log('admin',admin);
   const role = admin?.role; // e.g., "admin" or "support"
 
   // Get profile from the correct slice (admin or support)
   const adminProfile = useSelector((state) => state.profile.profile);
   const supportProfile = useSelector((state) => state.support.profile);
   const profile = role === "admin" ? adminProfile : supportProfile;
-
+console.log('role=============',role);
   // Dispatch the appropriate profile API call if not already loaded
   useEffect(() => {
     if (role === "admin" && !adminProfile) {

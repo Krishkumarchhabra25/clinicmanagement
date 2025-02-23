@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { exportPatientsThunk } from "../../redux/slices/patinetSlice";
 import {  toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "../../api/axiosInstance";
 
 const searchOptions = [
   { value: "patientname", text: "By Name (Default)" },
@@ -62,28 +63,35 @@ function PatientListHeader({ searchTerm, onSearch, onSort, onSearchEnter }) {
 
   const handleExport = async () => {
     try {
-      const response = await fetch("/api/export-patients", {
-        method: "GET",
+      const response = await axiosInstance.get("/patient/export-patient", {
+        responseType: "blob", // Important: Ensure the response is received as a Blob
       });
   
-      if (!response.ok) throw new Error("Failed to export patients");
+      if (response.status !== 200) throw new Error("Failed to export patients");
   
-      // Convert response to Blob
-      const blob = await response.blob();
+      // Create a Blob from the response data
+      const blob = new Blob([response.data], { 
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      });
   
-      // Create URL and download file
+      // Generate a download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", "patients.xlsx");
+  
+      // Trigger the download
       document.body.appendChild(link);
       link.click();
+  
+      // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Export failed:", error);
     }
   };
+  
   
   
   

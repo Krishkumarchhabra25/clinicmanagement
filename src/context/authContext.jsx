@@ -7,14 +7,18 @@ const AuthContext = createContext()
 // Create the provider component
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null)
+  const [admin, setadmin] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchUser = () => {
       const storedUser = Cookie.get('token')
-
-      if (storedUser) {
-        setToken(JSON.parse(storedUser))
+      const storedAdmin = Cookie.get('admin')
+      console.log(storedAdmin,'storedAdmin');
+      console.log(storedUser,'storedUser');
+      if (storedUser&&storedAdmin) {
+        setToken(storedUser)
+        setadmin(JSON.parse(storedAdmin))
       }
       setLoading(false)
     }
@@ -45,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ token, loading, login, logout }}>
+    <AuthContext.Provider value={{ token, loading, login, logout,admin }}>
       {children}
     </AuthContext.Provider>
   )

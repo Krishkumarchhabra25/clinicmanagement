@@ -10,9 +10,10 @@ export const loginUser = createAsyncThunk(
       if (response.data.success) {
         const token = response.data.token;
         const admin = response.data.admin; // The returned user details
-
+        console.log('callled=======================');
         // Store token in cookies for persistence
         Cookies.set("token", token, { expires: 7 });
+        Cookies.set("admin", JSON.stringify(admin), { expires: 7 });
         setAuthToken(token); // Set axios authorization header for subsequent requests
 
         return { token, admin, message: response.data.message };
@@ -48,6 +49,10 @@ const authSlice = createSlice({
         state.isAuthenticated = action.payload;
       }
     },
+    setAdminDetails: (state, action) => {
+      state.token = action.payload.token;
+      state.admin = action.payload.admin;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -70,5 +75,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logoutUser, setAuthenticated } = authSlice.actions;
+export const { logoutUser, setAuthenticated,setAdminDetails } = authSlice.actions;
 export default authSlice.reducer;
