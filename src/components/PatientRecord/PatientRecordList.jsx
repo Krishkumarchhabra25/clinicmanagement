@@ -23,11 +23,17 @@ import {
   fetchSortPatients,
   deletePatients
 } from "../../redux/slices/patinetSlice";
+import { getAdminProfile } from "../../redux/slices/profileSettingSlice";
+import { fetchSupportProfile } from "../../redux/slices/supportSlice";
 
 
 
 const PatientList = () => {
   // Local state for modal, search, sort, and delete confirmation
+  
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState("patientname");
@@ -37,8 +43,41 @@ const PatientList = () => {
   // Get state from Redux
   const { patinets, currentPage, loading, error, successMessage } =
     useSelector((state) => state.patients);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+
+    const { admin } = useSelector((state) => state.auth);
+  const role = admin?.role; // e.g., "admin" or "support"
+
+  // Get profile from the correct slice (admin or support)
+  const adminProfile = useSelector((state) => state.profile.profile);
+  const supportProfile = useSelector((state) => state.support.profile);
+  const profile = role === "admin" ? adminProfile : supportProfile;
+
+  // Dispatch the appropriate profile API call if not already loaded
+  useEffect(() => {
+    if (role === "admin" && !adminProfile) {
+      dispatch(getAdminProfile());
+    } else if (role === "support" && !supportProfile) {
+      dispatch(fetchSupportProfile());
+    }
+  }, [dispatch, role, adminProfile, supportProfile]);
+    useEffect(() => {
+      console.log("Updated Profile:", profile);
+      console.log("Permissions:", profile?.permissions);
+      console.log("Patient Permissions:", profile?.permissions?.patients);
+    }, [profile]);
+    
+
+    const patientPermissions = profile?.permissions?.patients || {};
+
+    // Check if user has specific permissions
+    const canView = patientPermissions.view;
+    const canAdd = patientPermissions.create;
+    const canEdit = patientPermissions.edit;
+    const canDelete = patientPermissions.delete;
+
+    
+    console.log("Create Permission:", patientPermissions.create);
+
 
   // Open/close modal for adding a patient
   const openModal = () => setIsModalOpen(true);
@@ -51,6 +90,7 @@ const PatientList = () => {
     }
   }, [dispatch, currentPage, searchTerm]);
 
+  
   // Display toast error when error occurs
   useEffect(() => {
     if (error) {
@@ -176,26 +216,31 @@ const PatientList = () => {
           Patient Records
         </h1>
         <div className="flex items-center gap-10">
+        {canAdd === true ? (
           <button
-            className="flex items-center justify-center gap-2 bg-white text-[#FF7B54] font-medium text-[16px] py-[13.5px] px-[20px] rounded-[27px] shadow-md hover:bg-gray-100 transition"
-            onClick={openModal}
+          className="flex items-center justify-center gap-2 bg-white text-[#FF7B54] font-medium text-[16px] py-[13.5px] px-[20px] rounded-[27px] shadow-md hover:bg-gray-100 transition"
+          onClick={openModal}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            stroke="currentColor"
+            className="w-5 h-5"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
-            </svg>
-            Add Patient
-          </button>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+          Add Patient
+        </button>
+        ) :(
+          <p>No permission to add patients</p>
+        )}
+         
         </div>
       </div>
 
@@ -242,19 +287,20 @@ const PatientList = () => {
                         <td className="py-3 px-4">{patient.village}</td>
                         <td className="py-3 px-4 text-center">
                           <div className="flex gap-4 justify-center">
-                            <button
-                              aria-label="Edit patient"
-                              onClick={(e) => handleEditClick(e, patient._id)}
-                            >
-                              <img
-                                loading="lazy"
-                                src={editIcon}
-                                alt="Edit"
-                                className="object-contain w-6"
-                              />
-                            </button>
+                          {canEdit &&   <button
+                            aria-label="Edit patient"
+                            onClick={(e) => handleEditClick(e, patient._id)}
+                          >
+                            <img
+                              loading="lazy"
+                              src={editIcon}
+                              alt="Edit"
+                              className="object-contain w-6"
+                            />
+                          </button> }
+                          
                             {/* Clicking the three‑dot icon opens the delete confirmation */}
-                            <button
+                            {canDelete &&     <button
                               aria-label="Open delete confirmation"
                               onClick={() =>
                                 handleShowDeleteModal(patient._id)
@@ -266,7 +312,8 @@ const PatientList = () => {
                                 alt="Options"
                                 className="object-contain w-6"
                               />
-                            </button>
+                            </button>}
+                         
                           </div>
                         </td>
                       </tr>

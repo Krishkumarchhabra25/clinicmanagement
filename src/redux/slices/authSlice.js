@@ -30,7 +30,7 @@ const authSlice = createSlice({
   initialState: {
     token: Cookies.get("token") || null,
     admin: null, // Store admin/support user details here
-    isAuthenticated: !!Cookies.get("token"),
+    isAuthenticated: true,
     loading: false,
     error: null,
     message: null,

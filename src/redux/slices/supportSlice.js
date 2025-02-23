@@ -4,6 +4,7 @@ import { getSupportProfile, updateSupportPermissions } from '../../api/SupportAp
 
 const initialState = {
     profile: null,
+    permissions:[],
     loading: false,
     error: null,
   };
@@ -49,7 +50,8 @@ const initialState = {
         })
         .addCase(fetchSupportProfile.fulfilled, (state, action) => {
           state.loading = false;
-          state.profile = action.payload.data; // store the support profile details
+          state.profile = action.payload.data;
+          state.permissions = action.payload.permissions || [];
         })
         .addCase(fetchSupportProfile.rejected, (state, action) => {
           state.loading = false;
@@ -62,10 +64,12 @@ const initialState = {
         })
         .addCase(updateSupportPermissionsThunk.fulfilled, (state, action) => {
           state.loading = false;
+          console.log("Redux State Before Update:", state.profile.permissions); // Debugging
           if (state.profile) {
-            state.profile.permissions = action.payload.data;
+              state.profile.permissions = action.payload.data;
           }
-        })
+          console.log("Redux State After Update:", state.profile.permissions); // Debugging
+      })
         .addCase(updateSupportPermissionsThunk.rejected, (state, action) => {
           state.loading = false;
           state.error = action.payload;

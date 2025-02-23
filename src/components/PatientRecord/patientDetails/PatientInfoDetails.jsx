@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import cancelIcon from "../../../assets/cancel.png";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPatientDetails, UpdatePatientsDetailsData } from "../../../redux/slices/patinetSlice";
+
+
 export default function PatientDetailsComponent() {
   const [activeTab, setActiveTab] = useState("Patient Information");
   const { state } = useLocation();
@@ -59,33 +63,32 @@ export default function PatientDetailsComponent() {
 
 
 
-  const showError = (message, toastId) => {
-    if (!toast.isActive(toastId)) {
-      toast.error(message, { toastId });
-    }
+  const showError = (message) => {
+    toast.error(message);
   };
+  
 
   const validateFields = () => {
     if (!formData.patientname.trim()) {
-      showError("Patient name is required.", 'name-error');
+      showError("Patient name is required.");
       return false;
     }
   
     if (!formData.phonenumber) {
-      showError("Phone number is required.", 'phone-required');
+      showError("Phone number is required.");
       return false;
     } else if (formData.phonenumber.length !== 10) {
-      showError("Phone number must be 10 digits.", 'phone-length');
+      showError("Phone number must be 10 digits.");
       return false;
     }
   
     if (!formData.gender) {
-      showError("Gender is required.", 'gender-error');
+      showError("Gender is required.");
       return false;
     }
   
     if (!formData.age) {
-      showError("Age is required.", 'age-required');
+      showError("Age is required.");
       return false;
     } else {
       const ageNum = parseInt(formData.age, 10);
