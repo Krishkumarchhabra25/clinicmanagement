@@ -34,17 +34,34 @@ const Availability = () => {
     dispatch(updateAvailabilityStatus({ id: schedule[index]._id, updatedData }));
   };
   
-  if (loading) return <p>Loading...</p>;
+
   return (
     <Template>
     <div className="flex overflow-hidden flex-col px-6 py-5 bg-white rounded-3xl max-md:px-5">
-      <div className="self-start text-base font-medium text-neutral-400">Add Your Availability</div>
+      <div className="self-start text-base font-medium text-neutral-400">
+        Add Your Availability
+      </div>
       <div className="flex flex-col mt-10 w-full max-md:max-w-full">
-        <div className="flex flex-wrap gap-10 justify-between items-start w-full max-md:max-w-full">
-          {schedule.map((daySchedule, index) => (
-            <DaySchedule key={daySchedule._id} index={index} schedule={daySchedule} updateSchedule={updateSchedule} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="w-full flex justify-center items-center text-gray-500 text-lg min-h-[100px]">
+            Loading...
+          </div>
+        ) : schedule && schedule.length > 0 ? (
+          <div className="flex flex-wrap gap-10 justify-between items-start w-full max-md:max-w-full">
+            {schedule.map((daySchedule, index) => (
+              <DaySchedule
+                key={daySchedule._id}
+                index={index}
+                schedule={daySchedule}
+                updateSchedule={updateSchedule}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="w-full flex justify-center items-center text-gray-500 text-lg min-h-[100px]">
+            No availability is there
+          </div>
+        )}
       </div>
     </div>
   </Template>

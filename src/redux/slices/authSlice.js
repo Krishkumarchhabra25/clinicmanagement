@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import Cookies from "js-cookie";
 import axiosInstance, { setAuthToken } from "../../api/axiosInstance";
 
 export const loginUser = createAsyncThunk(
@@ -9,19 +8,18 @@ export const loginUser = createAsyncThunk(
       const response = await axiosInstance.post("/admin/login-admin", credentials);
       if (response.data.success) {
         const token = response.data.token;
-        const admin = response.data.admin; // The returned user details
-        console.log('callled=======================');
-        // Store token in cookies for persistence
-        Cookies.set("token", token, { expires: 7 });
-        Cookies.set("admin", JSON.stringify(admin), { expires: 7 });
-        setAuthToken(token); // Set axios authorization header for subsequent requests
+        const admin = response.data.admin;
+        console.log('API login successful');
 
+        setAuthToken(token);
         return { token, admin, message: response.data.message };
       } else {
         return rejectWithValue(response.data.message || "Login Failed");
       }
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Something went wrong");
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
     }
   }
 );
@@ -29,9 +27,9 @@ export const loginUser = createAsyncThunk(
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    token: Cookies.get("token") || null,
-    admin: null, // Store admin/support user details here
-    isAuthenticated: true,
+    token: null,
+    admin: null,
+    isAuthenticated: false,
     loading: false,
     error: null,
     message: null,
@@ -42,12 +40,10 @@ const authSlice = createSlice({
       state.token = null;
       state.admin = null;
       state.message = null;
-      Cookies.remove("token");
+      // Cookie removal is now handled in AuthContext
     },
     setAuthenticated: (state, action) => {
-      if (state.isAuthenticated !== action.payload) {
-        state.isAuthenticated = action.payload;
-      }
+      state.isAuthenticated = action.payload;
     },
     setAdminDetails: (state, action) => {
       state.token = action.payload.token;
@@ -75,5 +71,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logoutUser, setAuthenticated,setAdminDetails } = authSlice.actions;
+export const { logoutUser, setAuthenticated, setAdminDetails } = authSlice.actions;
 export default authSlice.reducer;

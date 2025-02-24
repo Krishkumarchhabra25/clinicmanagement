@@ -3,8 +3,8 @@ import { InputField } from "../common/InputFiled/InputFiled";
 
 const ChnagePsaswordComponentes = () => {
     const [formData, setFormData] = useState({
-      username: "",
-      password: "",
+      lastpassword: "",
+      newpassword: "",
     });
   
     const handleInputChange = (e) => {

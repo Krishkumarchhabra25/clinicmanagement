@@ -1,18 +1,21 @@
 import { createSlice , createAsyncThunk } from "@reduxjs/toolkit";
 import { addPatient, DeletePatients, detailsPatient, exportPatients, getAllPatients, searchPatinets, sortPatients, updatePatients } from "../../api/patientsApi/PatientsApi";
+import axiosInstance from "../../api/axiosInstance";
 
 export const fetchAllPatients = createAsyncThunk(
-    "patients/fetchPatients", 
-    async ({ page = 1 }, { rejectWithValue }) => { 
-      try {
-        const data = await getAllPatients(page); 
-        if (data.success) return data.data;
-        return rejectWithValue("Failed to fetch patients"); 
-      } catch (error) {
-        return rejectWithValue(error);
-      }
+  "patients/fetchPatients",
+  async ({ page = 1 }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/patient/all-patient?page=${page}`);
+      const data = response.data;
+      if (data.success) return data.data; // Expected format: { patients, totalPages, currentPage }
+      return rejectWithValue("Failed to fetch patients");
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Something went wrong");
     }
-  );
+  }
+);
+
 
   export const fetchSearchPatients = createAsyncThunk(
     "patients/fetchSortedPatients",

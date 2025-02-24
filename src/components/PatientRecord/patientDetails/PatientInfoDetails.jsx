@@ -189,7 +189,7 @@ export default function PatientDetailsComponent() {
                 {/* Editable Patient Details Form */}
                 <div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
                   {activeTab === "Patient Information" && (
-                    <Form className="flex flex-wrap w-full justify-between">
+                    <Form className="flex flex-wrap w-full gap-6 justify-between">
                       {/* Patient Name */}
                       <div className="flex flex-col items-start w-full md:w-[45%] relative">
                         <label className="text-gray-600 font-medium mb-1 pl-2">
@@ -405,29 +405,7 @@ export default function PatientDetailsComponent() {
                 </button>
               </div>
             </div>
-            {/* Tab Navigation */}
-            <div className="flex gap-10 mt-12 px-10 text-lg font-medium">
-              <button
-                className={`${
-                  activeTab === "Patient Information"
-                    ? "text-red-400 border-b-4 border-red-400"
-                    : "text-zinc-400"
-                } pb-2`}
-                onClick={() => setActiveTab("Patient Information")}
-              >
-                Patient Information
-              </button>
-              <button
-                className={`${
-                  activeTab === "Medical Preferences"
-                    ? "text-red-400 border-b-4 border-red-400"
-                    : "text-zinc-400"
-                } pb-2`}
-                onClick={() => setActiveTab("Medical Preferences")}
-              >
-                Medical Preferences
-              </button>
-            </div>
+        
             {/* Read-only Patient Details */}
             <div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
               {activeTab === "Patient Information" && (

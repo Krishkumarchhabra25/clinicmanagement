@@ -1,58 +1,58 @@
-import { createContext, useState, useEffect } from 'react'
-import Cookie from 'js-cookie'
+import { createContext, useState, useEffect } from 'react';
+import Cookie from 'js-cookie';
 
-// Create the context
-const AuthContext = createContext()
+const AuthContext = createContext();
 
-// Create the provider component
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null)
-  const [admin, setadmin] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [token, setToken] = useState(null);
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = () => {
-      const storedUser = Cookie.get('token')
-      const storedAdmin = Cookie.get('admin')
-      console.log(storedAdmin,'storedAdmin');
-      console.log(storedUser,'storedUser');
-      if (storedUser&&storedAdmin) {
-        setToken(storedUser)
-        setadmin(JSON.parse(storedAdmin))
+      console.log("Checking cookies...", document.cookie);
+      const storedToken = Cookie.get('token');
+      const storedAdmin = Cookie.get('admin');
+      if (storedToken && storedAdmin) {
+        setToken(storedToken);
+        setAdmin(JSON.parse(storedAdmin));
       }
-      setLoading(false)
-    }
-    fetchUser()
-  }, [])
+      setLoading(false);
+    };
+    fetchUser();
+  }, []);
 
-  // Function to log in
-  const login = response => {
+  // Function to log in and store cookie data
+  const login = (response) => {
     try {
-      const userData = response
-
-      Cookie.set('token', JSON.stringify(userData))
-
-      setToken(userData)
+      console.log("Checking response", response);
+      const { token, admin } = response;
+      Cookie.set('token', token, { path: '/' });
+      Cookie.set('admin', JSON.stringify(admin), { path: '/' });
+      setToken(token);
+      setAdmin(admin);
     } catch (error) {
-      console.error('Error storing user/token to cookies:', error)
+      console.error('Error storing user/token to cookies:', error);
     }
-  }
+  };
 
-  // Function to log out
+  // Function to log out and clear cookies
   const logout = () => {
     try {
-      Cookie.remove('token')
+      Cookie.remove('token', { path: '/' });
+      Cookie.remove('admin', { path: '/' });
     } catch (error) {
-      console.error('Error clearing user/token from cookies:', error)
+      console.error('Error clearing user/token from cookies:', error);
     }
-    setToken(null)
-  }
+    setToken(null);
+    setAdmin(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ token, loading, login, logout,admin }}>
+    <AuthContext.Provider value={{ token, admin, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
-export default AuthContext
+export default AuthContext;

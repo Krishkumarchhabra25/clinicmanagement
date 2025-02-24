@@ -16,14 +16,18 @@ const AppRouter = () => {
       </Route>
 
       {/* Protected Routes: Only accessible when logged in */}
+
+      <Route path={routesKey.DASHBOARD} element={<pages.Dashboard />} />
+      <Route path={routesKey.AVAILABILITY} element={<pages.Availability />} />
+      <Route path={routesKey.APPOINTMENTS} element={<pages.Appointments />} />
+      <Route path={routesKey.PASSWORDS} element={<pages.Password />} />
+      <Route path={routesKey.PATIENTRECORD} element={<pages.PatientRecord />} />
+      <Route path={routesKey.PROFILESETTING} element={<pages.ProfileSetting />} />
+      <Route path={routesKey.PATIENTRECORDDETAILS} element={<pages.PatientRecordDetails />} />
+
+      
       <Route element={<AuthCheck />}>
-        <Route path={routesKey.DASHBOARD} element={<pages.Dashboard />} />
-        <Route path={routesKey.AVAILABILITY} element={<pages.Availability />} />
-        <Route path={routesKey.APPOINTMENTS} element={<pages.Appointments />} />
-        <Route path={routesKey.PASSWORDS} element={<pages.Password />} />
-        <Route path={routesKey.PATIENTRECORD} element={<pages.PatientRecord />} />
-        <Route path={routesKey.PROFILESETTING} element={<pages.ProfileSetting />} />
-        <Route path={routesKey.PATIENTRECORDDETAILS} element={<pages.PatientRecordDetails />} />
+ 
       </Route>
 
       {/* If no route matches, redirect to login */}

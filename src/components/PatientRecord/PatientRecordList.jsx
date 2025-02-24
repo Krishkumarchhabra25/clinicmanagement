@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 // Toast notifications
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Components
@@ -44,31 +44,32 @@ const PatientList = () => {
   const { patinets, currentPage, loading, error, successMessage } =
     useSelector((state) => state.patients);
 
-  const { admin } = useSelector((state) => state.auth);
-  console.log('admin',admin);
-  const role = admin?.role; // e.g., "admin" or "support"
 
-  // Get profile from the correct slice (admin or support)
+  const { token, admin } = useSelector((state) => state.auth);
+
   const adminProfile = useSelector((state) => state.profile.profile);
   const supportProfile = useSelector((state) => state.support.profile);
-  const profile = role === "admin" ? adminProfile : supportProfile;
-console.log('role=============',role);
-  // Dispatch the appropriate profile API call if not already loaded
-  useEffect(() => {
-    if (role === "admin" && !adminProfile) {
-      dispatch(getAdminProfile());
-    } else if (role === "support" && !supportProfile) {
-      dispatch(fetchSupportProfile());
-    }
-  }, [dispatch, role, adminProfile, supportProfile]);
-    useEffect(() => {
-      console.log("Updated Profile:", profile);
-      console.log("Permissions:", profile?.permissions);
-      console.log("Patient Permissions:", profile?.permissions?.patients);
-    }, [profile]);
-    
 
-    const patientPermissions = profile?.permissions?.patients || {};
+
+  const profileRole = adminProfile?.role || admin?.role;
+  console.log("Derived role:", profileRole);
+
+  
+  useEffect(() => {
+    if ( profileRole ) {
+      if (profileRole === "admin") {
+        dispatch(getAdminProfile());
+      } else if (profileRole === "support") {
+        dispatch(fetchSupportProfile());
+      }
+    }
+  }, [dispatch, profileRole]);
+
+
+  const profile = profileRole === "admin" ? adminProfile : supportProfile;
+
+
+  const patientPermissions = profile?.permissions?.patients || {};
 
     // Check if user has specific permissions
     const canView = patientPermissions.view;
@@ -84,7 +85,6 @@ console.log('role=============',role);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  // Load all patients when no search term exists
   useEffect(() => {
     if (!searchTerm) {
       dispatch(fetchAllPatients({ page: currentPage }));
@@ -362,7 +362,6 @@ console.log('role=============',role);
       <PatientModal isOpen={isModalOpen} onClose={closeModal} />
 
       {/* Toast Container */}
-      <ToastContainer />
     </div>
   );
 };

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Switch from 'react-switch';
 import { fetchSupportProfile, updateSupportPermissionsThunk } from '../../redux/slices/supportSlice';
-
+import { toast } from 'react-toastify';
 // Toggle component for each permission
 export const PermissionToggle = ({ label, checked = false, onChange }) => (
   <div className="flex justify-between items-center w-full">
@@ -76,6 +76,14 @@ export const SupportProfileSetting = () => {
     dispatch(fetchSupportProfile());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (error) {
+      const errorMessage =
+        typeof error === "string" ? error : error.message || "Something went wrong";
+      toast.error(errorMessage, { toastId: "support-error" });
+    }
+  }, [error]);
+  
   // When profile is loaded, initialize toggle states with current permission values
   useEffect(() => {
     if (profile && profile.permissions) {
@@ -121,7 +129,7 @@ export const SupportProfileSetting = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Support Management</h1>
       {loading && <p>Loading support profile...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+
       {profile && (
         <>
           {/* Profile Information */}
