@@ -187,174 +187,225 @@ export default function PatientDetailsComponent() {
                 </div>
 
                 {/* Editable Patient Details Form */}
-                <div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
-                  {activeTab === "Patient Information" && (
-                    <Form className="flex flex-wrap w-full gap-6 justify-between">
-                      {/* Patient Name */}
-                      <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                        <label className="text-gray-600 font-medium mb-1 pl-2">
-                          Name
-                        </label>
-                        <div className="relative w-full">
-                          <Field
-                            type="text"
-                            name="patientname"
-                            placeholder="Enter patient name"
-                            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                          />
-                          <ErrorMessage
-                            name="patientname"
-                            component="div"
-                            className="text-red-500 text-xs mt-1"
-                          />
-                        </div>
-                      </div>
+          {/* Editable Patient Details Form */}
+<div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
+{activeTab === "Patient Information" && (
+  <Form className="flex flex-wrap w-full gap-6 justify-between">
+    
+    {/* Patient Name */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Name</label>
+      <Field name="patientname">
+        {({ field, form }) => (
+          <div className="relative w-full">
+            <input
+              {...field}
+              type="text"
+              placeholder="Enter patient name"
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            />
+            {field.value && (
+              <img
+                src={cancelIcon}
+                alt="Clear"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => form.setFieldValue("patientname", "")}
+              />
+            )}
+          </div>
+        )}
+      </Field>
+      <ErrorMessage name="patientname" component="div" className="text-red-500 text-xs mt-1" />
+    </div>
 
-                      {/* Date of Birth */}
-                      <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                        <label className="text-gray-600 font-medium mb-1 pl-2">
-                          Date of Birth
-                        </label>
-                        <div className="relative w-full">
-                          <Field
-                            type="date"
-                            name="dob"
-                            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                          />
-                          <ErrorMessage
-                            name="dob"
-                            component="div"
-                            className="text-red-500 text-xs mt-1"
-                          />
-                        </div>
-                      </div>
+    {/* Date of Birth */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Date of Birth</label>
+      <Field name="dob">
+        {({ field, form }) => (
+          <div className="relative w-full">
+            <input
+              {...field}
+              type="date"
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            />
+            {field.value && (
+              <img
+                src={cancelIcon}
+                alt="Clear"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => form.setFieldValue("dob", "")}
+              />
+            )}
+          </div>
+        )}
+      </Field>
+      <ErrorMessage name="dob" component="div" className="text-red-500 text-xs mt-1" />
+    </div>
 
-                      {/* Phone Number */}
-                      <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                        <label className="text-gray-600 font-medium mb-1 pl-2">
-                          Phone Number
-                        </label>
-                        <div className="relative w-full">
-                          <Field
-                            type="tel"
-                            name="phonenumber"
-                            placeholder="Enter 10-digit number"
-                            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                            maxLength={10}
-                          />
-                          <ErrorMessage
-                            name="phonenumber"
-                            component="div"
-                            className="text-red-500 text-xs mt-1"
-                          />
-                        </div>
-                      </div>
+    {/* Phone Number */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Phone Number</label>
+      <Field name="phonenumber">
+        {({ field, form }) => (
+          <div className="relative w-full">
+            <input
+              {...field}
+              type="tel"
+              placeholder="Enter 10-digit number"
+              maxLength={10}
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            />
+            {field.value && (
+              <img
+                src={cancelIcon}
+                alt="Clear"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => form.setFieldValue("phonenumber", "")}
+              />
+            )}
+          </div>
+        )}
+      </Field>
+      <ErrorMessage name="phonenumber" component="div" className="text-red-500 text-xs mt-1" />
+    </div>
 
-                      {/* Age */}
-                      <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                        <label className="text-gray-600 font-medium mb-1 pl-2">
-                          Age
-                        </label>
-                        <div className="relative w-full">
-                          <Field
-                            type="number"
-                            name="age"
-                            placeholder="Enter age (1-99)"
-                            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                          />
-                          <ErrorMessage
-                            name="age"
-                            component="div"
-                            className="text-red-500 text-xs mt-1"
-                          />
-                        </div>
-                      </div>
+    {/* Age */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Age</label>
+      <Field name="age">
+        {({ field, form }) => (
+          <div className="relative w-full">
+            <input
+              {...field}
+              type="number"
+              placeholder="Enter age (1-99)"
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            />
+            {field.value && (
+              <img
+                src={cancelIcon}
+                alt="Clear"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => form.setFieldValue("age", "")}
+              />
+            )}
+          </div>
+        )}
+      </Field>
+      <ErrorMessage name="age" component="div" className="text-red-500 text-xs mt-1" />
+    </div>
 
-                      {/* Email */}
-                      <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                        <label className="text-gray-600 font-medium mb-1 pl-2">
-                          Email
-                        </label>
-                        <div className="relative w-full">
-                          <Field
-                            type="email"
-                            name="email"
-                            placeholder="Enter email"
-                            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                          />
-                          <ErrorMessage
-                            name="email"
-                            component="div"
-                            className="text-red-500 text-xs mt-1"
-                          />
-                        </div>
-                      </div>
+    {/* Email */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Email</label>
+      <Field name="email">
+        {({ field, form }) => (
+          <div className="relative w-full">
+            <input
+              {...field}
+              type="email"
+              placeholder="Enter email"
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            />
+            {field.value && (
+              <img
+                src={cancelIcon}
+                alt="Clear"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => form.setFieldValue("email", "")}
+              />
+            )}
+          </div>
+        )}
+      </Field>
+      <ErrorMessage name="email" component="div" className="text-red-500 text-xs mt-1" />
+    </div>
 
-                      {/* Village Details */}
-                      <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                        <label className="text-gray-600 font-medium mb-1 pl-2">
-                          Village Details
-                        </label>
-                        <div className="relative w-full">
-                          <Field
-                            type="text"
-                            name="village"
-                            placeholder="Enter village details"
-                            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                          />
-                          <ErrorMessage
-                            name="village"
-                            component="div"
-                            className="text-red-500 text-xs mt-1"
-                          />
-                        </div>
-                      </div>
+    {/* Village Details */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Village Details</label>
+      <Field name="village">
+        {({ field, form }) => (
+          <div className="relative w-full">
+            <input
+              {...field}
+              type="text"
+              placeholder="Enter village details"
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            />
+            {field.value && (
+              <img
+                src={cancelIcon}
+                alt="Clear"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => form.setFieldValue("village", "")}
+              />
+            )}
+          </div>
+        )}
+      </Field>
+      <ErrorMessage name="village" component="div" className="text-red-500 text-xs mt-1" />
+    </div>
 
-                      {/* Registration Date */}
-                      <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                        <label className="text-gray-600 font-medium mb-1 pl-2">
-                          Registration Date
-                        </label>
-                        <div className="relative w-full">
-                          <Field
-                            type="date"
-                            name="registrationDate"
-                            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                          />
-                          <ErrorMessage
-                            name="registrationDate"
-                            component="div"
-                            className="text-red-500 text-xs mt-1"
-                          />
-                        </div>
-                      </div>
+    {/* Registration Date */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Registration Date</label>
+      <Field name="registrationDate">
+        {({ field, form }) => (
+          <div className="relative w-full">
+            <input
+              {...field}
+              type="date"
+              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            />
+            {field.value && (
+              <img
+                src={cancelIcon}
+                alt="Clear"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => form.setFieldValue("registrationDate", "")}
+              />
+            )}
+          </div>
+        )}
+      </Field>
+      <ErrorMessage name="registrationDate" component="div" className="text-red-500 text-xs mt-1" />
+    </div>
 
-                      {/* Gender */}
-                      <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                        <label className="text-gray-600 font-medium mb-1 pl-2">
-                          Gender
-                        </label>
-                        <div className="relative w-full">
-                          <Field
-                            as="select"
-                            name="gender"
-                            className="w-full p-3 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
-                          >
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </Field>
-                          <ErrorMessage
-                            name="gender"
-                            component="div"
-                            className="text-red-500 text-xs mt-1"
-                          />
-                        </div>
-                      </div>
-                    </Form>
-                  )}
-                </div>
+    {/* Gender */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Gender</label>
+      <Field name="gender">
+        {({ field, form }) => (
+          <div className="relative w-full">
+            <select
+              {...field}
+              className="w-full p-3 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+            {field.value && (
+              <img
+                src={cancelIcon}
+                alt="Clear"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => form.setFieldValue("gender", "")}
+              />
+            )}
+          </div>
+        )}
+      </Field>
+      <ErrorMessage name="gender" component="div" className="text-red-500 text-xs mt-1" />
+    </div>
+
+  </Form>
+)}
+</div>
+
               </>
             )}
           </Formik>
@@ -406,22 +457,79 @@ export default function PatientDetailsComponent() {
               </div>
             </div>
         
-            {/* Read-only Patient Details */}
-            <div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
-              {activeTab === "Patient Information" && (
-                <div className="flex flex-wrap gap-7">
-                  <div className="flex flex-col items-start w-full md:w-[45%] relative">
-                    <label className="text-gray-600 font-medium mb-1 pl-2">
-                      Name
-                    </label>
-                    <div className="p-3 bg-transparent border-none break-words text-black max-w-[434px]">
-                      {patientsDetails?.patientname || "N/A"}
-                    </div>
-                  </div>
-                  {/* Render additional read-only fields similarly */}
-                </div>
-              )}
-            </div>
+        {/* Read-only Patient Details */}
+<div className="flex flex-col mt-3 px-10 bg-white rounded-b-3xl p-4">
+{activeTab === "Patient Information" && (
+  <div className="flex flex-wrap gap-7">
+    
+    {/* Patient Name */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Name</label>
+      <div className="p-3   rounded-[13px] text-black w-full">
+        {patientsDetails?.patientname || "N/A"}
+      </div>
+    </div>
+
+    {/* Date of Birth */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Date of Birth</label>
+      <div className="p-3  rounded-[13px] text-black w-full">
+        {patientsDetails?.dob || "N/A"}
+      </div>
+    </div>
+
+    {/* Phone Number */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Phone Number</label>
+      <div className="p-3  rounded-[13px] text-black w-full">
+        {patientsDetails?.phonenumber || "N/A"}
+      </div>
+    </div>
+
+    {/* Age */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Age</label>
+      <div className="p-3  rounded-[13px] text-black w-full">
+        {patientsDetails?.age || "N/A"}
+      </div>
+    </div>
+
+    {/* Email */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Email</label>
+      <div className="p-3  rounded-[13px] text-black w-full">
+        {patientsDetails?.email || "N/A"}
+      </div>
+    </div>
+
+    {/* Village Details */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Village Details</label>
+      <div className="p-3  rounded-[13px] text-black w-full">
+        {patientsDetails?.village || "N/A"}
+      </div>
+    </div>
+
+    {/* Registration Date */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Registration Date</label>
+      <div className="p-3  rounded-[13px] text-black w-full">
+        {patientsDetails?.registrationDate || "N/A"}
+      </div>
+    </div>
+
+    {/* Gender */}
+    <div className="flex flex-col items-start w-full md:w-[45%] relative">
+      <label className="text-gray-600 font-medium mb-1 pl-2">Gender</label>
+      <div className="p-3 rounded-[13px] text-black w-full">
+        {patientsDetails?.gender || "N/A"}
+      </div>
+    </div>
+
+  </div>
+)}
+</div>
+
           </>
         )}
       </div>

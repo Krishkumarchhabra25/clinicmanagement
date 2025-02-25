@@ -32,7 +32,7 @@ const adminProfileSlice = createSlice({
   name: 'profile',
   initialState: {
     profile: null,
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: 'idle', 
     error: null,
   },
   reducers: {},

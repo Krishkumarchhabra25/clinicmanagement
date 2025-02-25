@@ -46,6 +46,8 @@ export const SupportProfileSetting = () => {
   const dispatch = useDispatch();
   const { profile, loading, error } = useSelector((state) => state.support);
 
+  const role = localStorage.getItem("role");
+
   // Local state for toggles; keys correspond to the permission structure in the backend.
   const [toggleStates, setToggleStates] = useState({
     view: false,
@@ -127,7 +129,12 @@ export const SupportProfileSetting = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Support Management</h1>
+    <div className="flex items-center justify-between mx-2 mb-6">
+    <div className="flex items-center">
+      <div className="h-[48px] w-[9px] border-e-2 bg-[#FF7B54]" />
+      <h1 className="text-[24px] text-[#FF7B54] mx-2">Support Mangement</h1>
+    </div>
+  </div>
       {loading && <p>Loading support profile...</p>}
 
       {profile && (
@@ -145,7 +152,9 @@ export const SupportProfileSetting = () => {
           </div>
 
           {/* Access Control Section */}
-          <div className="flex items-center justify-between mx-2 mb-6">
+          {role === "admin" ? (
+            <>
+            <div className="flex items-center justify-between mx-2 mb-6">
             <div className="flex items-center">
               <div className="h-[48px] w-[9px] border-e-2 bg-[#FF7B54]" />
               <h1 className="text-[24px] text-[#FF7B54] mx-2">Access Control</h1>
@@ -166,6 +175,14 @@ export const SupportProfileSetting = () => {
               onToggle={handleToggle}
             />
           </div>
+          </>
+          ) :(
+
+          <div>
+            <h1>No Permission granted</h1>
+          </div>
+           )}
+     
         </>
       )}
     </div>

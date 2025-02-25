@@ -45,41 +45,18 @@ const PatientList = () => {
     useSelector((state) => state.patients);
 
 
-  const { token, admin } = useSelector((state) => state.auth);
-
-  const adminProfile = useSelector((state) => state.profile.profile);
-  const supportProfile = useSelector((state) => state.support.profile);
-
-
-  const profileRole = adminProfile?.role || admin?.role;
-  console.log("Derived role:", profileRole);
-
+    const storedPermissions = localStorage.getItem("permissions");
+    const permissions = storedPermissions ? JSON.parse(storedPermissions) : {};
+    const patientPermissions = permissions.patients || {};
   
-  useEffect(() => {
-    if ( profileRole ) {
-      if (profileRole === "admin") {
-        dispatch(getAdminProfile());
-      } else if (profileRole === "support") {
-        dispatch(fetchSupportProfile());
-      }
-    }
-  }, [dispatch, profileRole]);
-
-
-  const profile = profileRole === "admin" ? adminProfile : supportProfile;
-
-
-  const patientPermissions = profile?.permissions?.patients || {};
-
-    // Check if user has specific permissions
+    // Check for specific patient permissions
     const canView = patientPermissions.view;
     const canAdd = patientPermissions.create;
     const canEdit = patientPermissions.edit;
     const canDelete = patientPermissions.delete;
-
-    
-    console.log("Create Permission:", patientPermissions.create);
-
+  
+    console.log("Patient Permissions:", patientPermissions);
+  
 
   // Open/close modal for adding a patient
   const openModal = () => setIsModalOpen(true);
