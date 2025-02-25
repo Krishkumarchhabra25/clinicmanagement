@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAuth from "../../hooks/useAuth";
 const LoginFormComponents = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.auth);
+  const {login } = useAuth();
 
   const [formData, setFormData] = useState({
     identifier: "",
@@ -28,6 +30,7 @@ const LoginFormComponents = () => {
     const result = await dispatch(loginUser(formData));
     if (loginUser.fulfilled.match(result)) {
       toast.success("Login Successful!", { position: "top-right" });
+      login(result?.payload)
       setTimeout(() => {
         navigate("/dashboard");
       }, 1500);

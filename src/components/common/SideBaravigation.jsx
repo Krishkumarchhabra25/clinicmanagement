@@ -12,10 +12,11 @@ import LogoutIcon from "../../assets/Nav-Links-Icons.png"; // add an icon for lo
 import { useContext } from "react";
 import AuthContext from "../../context/authContext";
 import starIcon from "../../assets/starframe.png"
+import useAuth from "../../hooks/useAuth";
 
 const Navigation = () => {
   const { admin } = useSelector((state) => state.auth);
-  const { logout } = useContext(AuthContext);
+  const { logout } = useAuth();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();

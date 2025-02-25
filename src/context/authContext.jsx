@@ -13,6 +13,8 @@ export const AuthProvider = ({ children }) => {
       console.log("Checking cookies...", document.cookie);
       const storedToken = Cookie.get('token');
       const storedAdmin = Cookie.get('admin');
+      console.log('storedToken',storedToken);
+      console.log('storedAdmin',storedAdmin);
       if (storedToken && storedAdmin) {
         setToken(storedToken);
         setAdmin(JSON.parse(storedAdmin));
@@ -27,6 +29,8 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log("Checking response", response);
       const { token, admin } = response;
+      console.log('token', token);
+      console.log('admin', admin);
       Cookie.set('token', token, { path: '/' });
       Cookie.set('admin', JSON.stringify(admin), { path: '/' });
       setToken(token);
