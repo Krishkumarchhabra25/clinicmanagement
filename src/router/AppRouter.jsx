@@ -13,6 +13,8 @@ const AppRouter = () => {
       <Route element={<PublicRoute />}>
         <Route path={routesKey.ADMINLOGIN} element={<pages.AdminLogin />} />
         <Route path={routesKey.ADMINCHNAGEPASSWORD} element={<pages.AdminChangePassword />} />
+        <Route path={routesKey.RESETPASSWORD} element={<pages.ResetPassword />} />
+
       </Route>
 
       {/* Protected Routes: Only accessible when logged in */}

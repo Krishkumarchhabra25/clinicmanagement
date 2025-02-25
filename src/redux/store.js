@@ -5,6 +5,9 @@ import availabilitySlice from "./slices/availabilitySlice";
 import profileSettingSlice from  "./slices/profileSettingSlice"
 import ClinicUserSlice from "./slices/clinicSlice"
 import SupportSlice from "./slices/supportSlice"
+import SendOtpSlice from "./slices/SendotpSlice"
+import VerifyOtpSlice from "./slices/verifyOtp"
+import ChangePassword from "./slices/changePassword"
 import Cookies from "js-cookie";
 
 const preloadedState = {
@@ -23,6 +26,9 @@ export const store = configureStore({
     profile: profileSettingSlice,
     clinic:ClinicUserSlice,
     support:SupportSlice,
+    sendotp:SendOtpSlice,
+    verifyOtp:VerifyOtpSlice,
+    changePassword:ChangePassword
   },
    preloadedState, 
    middleware: (getDefaultMiddleware) =>

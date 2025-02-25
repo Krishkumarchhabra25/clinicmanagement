@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import ChnagePsaswordComponentes from "../../components/AdminChangePasswordComponents/ChangePasswordComponents"
 import { ArrowLeft } from "lucide-react"; // Importing a back arrow icon
-import ChangePasswordComponent from "../../components/AdminChangePasswordComponents/ChangePasswordComponents";
-const AdminChangePassword = () => {
+
+import ResetPasswordComponent from "../../components/ResetPassword/ResetPassword";
+
+const ResetPassword = () => {
     const navigate = useNavigate()
   return (
     <div className="flex justify-center items-center min-h-screen w-full overflow-auto bg-stone-100 px-5 py-5">
@@ -22,12 +23,12 @@ const AdminChangePassword = () => {
           alt="Admin Logo"
           className="object-contain w-[93px] aspect-[0.95]"
         />
-        <div className="mt-5">Forgot Password</div>
+        <div className="mt-5">Reset Password</div>
       </div>
-      <ChangePasswordComponent />
+     <ResetPasswordComponent />
     </div>
   </div>
   )
 }
 
-export default AdminChangePassword
+export default ResetPassword

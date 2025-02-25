@@ -73,10 +73,9 @@ const LoginFormComponents = () => {
           </button>
           <div className="flex justify-between items-center mt-5 w-full text-sm text-black">
             {/* Left Side */}
-            <button type="button" className="text-left">Forgot Password?</button>
+            <button  onClick={()=>navigate("/changepassword")} type="button" className="text-left">Forgot Password?</button>
   
             {/* Right Side */}
-            <button onClick={()=>navigate("/changepassword")} type="button" className="text-right">Change Password?</button>
           </div>
         </div>
       </form>
