@@ -192,6 +192,11 @@ export function AdminProfileSetting() {
     setIsEditMode((prev) => !prev);
   };
 
+  const handleForgotPassword = () => {
+    navigate("/change");
+  };
+  
+
   return (
     <div>
       <ToastContainer />
@@ -213,6 +218,9 @@ export function AdminProfileSetting() {
         <div className="bg-transparent border-none break-words text-black max-w-[434px] flex justify-between items-center">
           {/* Since password is typically not returned, adjust as needed */}
           <div className="flex-1">{profile?.password || "********"}</div>
+        </div>
+        <div >
+          <button onClick={handleForgotPassword} className='text-[14px]'>Forgot Password ?</button> 
         </div>
       </div>
 

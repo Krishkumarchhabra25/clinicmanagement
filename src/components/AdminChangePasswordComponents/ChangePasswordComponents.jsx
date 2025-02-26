@@ -135,7 +135,7 @@ const ChangePasswordComponent = () => {
               <button
                 type="button"
                 onClick={() => handleSendOtp(values)}
-                className="gap-2.5 self-stretch px-56 py-3.5 w-full text-lg font-medium text-white bg-orange-400 rounded-xl"
+                className="gap-2.5 self-stretch px-56 py-3.5 w-full text-lg font-medium text-white bg-red-400 rounded-xl min-h-[52px] max-md:px-5 max-md:max-w-full"
                 disabled={otpLoading || isSubmitting}
               >
                 {otpLoading || isSubmitting ? "Sending..." : "Send OTP"}
@@ -147,7 +147,7 @@ const ChangePasswordComponent = () => {
               <button
                 type="button"
                 onClick={() => handleSendOtp(values)}
-                className="mt-3 px-56 py-3.5 w-full text-lg font-medium text-white bg-orange-400 rounded-xl"
+                className="gap-2.5 self-stretch px-56 py-3.5 w-full text-lg font-medium text-white bg-red-400 rounded-xl min-h-[52px] max-md:px-5 max-md:max-w-full"
                 disabled={otpLoading || isSubmitting}
               >
                 {isSubmitting ? "Resending..." : "Resend OTP"}
@@ -158,7 +158,7 @@ const ChangePasswordComponent = () => {
             {isOtpSent && values.otp.length === 6 && (
               <button
                 type="submit"
-                className="mt-3 px-56 py-3.5 w-full text-lg font-medium text-white bg-orange-400 rounded-xl"
+                className="gap-2.5 self-stretch px-56 py-3.5 w-full text-lg font-medium text-white bg-red-400 rounded-xl min-h-[52px] max-md:px-5 max-md:max-w-full"
                 disabled={verifying || isSubmitting}
               >
                 {verifying ? "Verifying..." : "Verify OTP"}

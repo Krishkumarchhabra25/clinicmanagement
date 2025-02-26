@@ -99,7 +99,7 @@ const ResetPasswordComponent = () => {
               {/* Submit Button with enhanced disabled state */}
               <button
                 type="submit"
-                className="px-56 py-3.5 w-full text-lg font-medium text-white bg-orange-400 rounded-xl"
+                className="gap-2.5 self-stretch px-40 py-3.5 w-full text-lg font-medium text-white bg-red-400 rounded-xl min-h-[52px] max-md:px-5 max-md:max-w-full"
                 disabled={!isValid || loading || isSubmitting} // Combined disabled conditions
               >
                 {loading || isSubmitting ? "Changing Password..." : "Change Password"}

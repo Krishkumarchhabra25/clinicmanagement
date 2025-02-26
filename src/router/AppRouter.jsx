@@ -27,6 +27,8 @@ const AppRouter = () => {
       <Route path={routesKey.PATIENTRECORD} element={<pages.PatientRecord />} />
       <Route path={routesKey.PROFILESETTING} element={<pages.ProfileSetting />} />
       <Route path={routesKey.PATIENTRECORDDETAILS} element={<pages.PatientRecordDetails />} />
+      <Route path={routesKey.RESETPASSWORDAfterLogin} element={<pages.ResetPasswordAfterLogin />} />
+
       </Route>
 
       {/* If no route matches, redirect to login */}
