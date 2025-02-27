@@ -49,6 +49,10 @@ export const AuthProvider = ({ children }) => {
       Cookie.remove('admin', { path: '/' });
   
     localStorage.removeItem("role");
+    localStorage.removeItem("token");
+    localStorage.removeItem("permissions");
+    localStorage.removeItem("name");
+    localStorage.removeItem("admin");
     } catch (error) {
       console.error('Error clearing user/token from cookies:', error);
     }

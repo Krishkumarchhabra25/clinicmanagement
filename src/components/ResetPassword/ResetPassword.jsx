@@ -4,8 +4,8 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { changePasswordBeforeLogin, resetChangePasswordState } from "../../redux/slices/changePassword";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
+
 
 const ResetPasswordComponent = () => {
   const dispatch = useDispatch();
@@ -52,7 +52,6 @@ const ResetPasswordComponent = () => {
 
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} />
       <Formik
         initialValues={{ email: "", lastPassword: "", newPassword: "" }}
         validationSchema={validationSchema}

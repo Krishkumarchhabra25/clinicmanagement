@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
+
 import { sendOtp, resetOtpState } from "../../redux/slices/SendotpSlice";
 import { verifyOtp, resetVerification } from "../../redux/slices/verifyOtp";
 

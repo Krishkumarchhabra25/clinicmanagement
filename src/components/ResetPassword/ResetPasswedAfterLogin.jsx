@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { changePasswordAfterLogin, resetChangePasswordState } from "../../redux/slices/changePassword";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const ResetPasswordAfterLoginComponent = () => {
   const dispatch = useDispatch();
@@ -49,7 +49,6 @@ const ResetPasswordAfterLoginComponent = () => {
 
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} />
       <Formik
         initialValues={{ currentPassword: "", newPassword: "" }}
         validationSchema={validationSchema}

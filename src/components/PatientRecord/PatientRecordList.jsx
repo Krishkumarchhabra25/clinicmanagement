@@ -1,10 +1,10 @@
 import  { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 // Toast notifications
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
 
 // Components
 import Pagination from "./Pagination";
@@ -25,6 +25,7 @@ import {
 } from "../../redux/slices/patinetSlice";
 import { getAdminProfile } from "../../redux/slices/profileSettingSlice";
 import { fetchSupportProfile } from "../../redux/slices/supportSlice";
+import { notifyError, notifySuccess } from "../common/ToastCommon";
 
 
 
@@ -70,29 +71,9 @@ const PatientList = () => {
 
   
   // Display toast error when error occurs
-  useEffect(() => {
-    if (error) {
-      toast.error(
-        typeof error === "object"
-          ? error.message || JSON.stringify(error)
-          : error,
-        {
-          position: "top-right",
-          autoClose: 5000,
-        }
-      );
-    }
-  }, [error]);
+
 
   // Display toast success when deletion is successful
-  useEffect(() => {
-    if (successMessage) {
-      toast.success(successMessage, {
-        position: "top-right",
-        autoClose: 5000,
-      });
-    }
-  }, [successMessage]);
 
   const handleSearch = (term, type) => {
     setSearchTerm(term);
@@ -176,13 +157,17 @@ const PatientList = () => {
   };
 
   // When confirmed, dispatch the delete thunk
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (patientToDelete) {
-      dispatch(deletePatients({ patientId: patientToDelete }));
+      try {
+        await dispatch(deletePatients({ patientId: patientToDelete })).unwrap();
+        toast.success("Deleted successfully");
+      } catch (error) {
+        toast.error("Something went wrong");
+      }
       setPatientToDelete(null);
     }
   };
-
   return (
     <div>
       {/* Header area */}
@@ -347,165 +332,167 @@ const PatientList = () => {
 
 
 
-  export const PatientModal = ({ isOpen, onClose }) => {
-    const initialFormData = {
-      patientname: "",
-      phonenumber: "",
-      gender: "",
-      age:"",
-      village: "",
-      email: "",
-      dob: "",
-      remarks: "",
-    };
+export const PatientModal = ({ isOpen, onClose }) => {
+  const dispatch = useDispatch()
+  const initialFormData = {
+    patientname: "",
+    phonenumber: "",
+    gender: "",
+    age: "",
+    village: "",
+    email: "",
+    dob: "",
+    remarks: "",
+  };
 
-    const [formData, setFormData] = useState(initialFormData);
-    const [isSaving, setIsSaving] = useState(false);
-    const dispatch = useDispatch()
-    if (!isOpen) return null;
+  const validationSchema = Yup.object().shape({
+    patientname: Yup.string().required("Patient Name is required."),
+    phonenumber: Yup.string()
+      .required("Patient Number is required.")
+      .matches(/^\d{10}$/, "Patient Number must be 10 digits."),
+    gender: Yup.string().required("Gender is required."),
+    age: Yup.string().required("Age is required."),
+    village: Yup.string()
+      .required("Village Details are required.")
+      .max(60, "Village Details can be a maximum of 60 characters."),
+    email: Yup.string().required("Email is required.").email("Invalid email address."),
+    dob: Yup.date().required("Date of Birth is required.").typeError("Invalid date format"),
+    remarks: Yup.string().max(30, "Remarks can be a maximum of 30 characters."),
+  });
 
-    const validateFields = () => {
-      if (!formData.patientname) return "Patient Name is required.";
-      if (!formData.phonenumber) return "Patient Number is required.";
-      if (!/^\d{10}$/.test(formData.phonenumber)) return "Patient Number must be 10 digits.";
-      if (!formData.gender) return "Gender is required.";
-      if (!formData.age) return "age is required.";
-      if (!formData.village) return "Village Details are required.";
-      if (formData.village.length > 60) return "Village Details can be a maximum of 60 characters.";
-      if (!formData.email) return "Email is required.";
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return "Invalid email address.";
-      if (!formData.dob) return "Date of Birth is required.";
-      if (formData.remarks.length > 30) return "Remarks can be a maximum of 30 characters.";
-      return null;
-    };
-
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      if (isSaving) return;
-
-      setIsSaving(true);
-      const error = validateFields();
-
-      if (error) {
-        toast.error(error, { toastId: "validation-error" });
-        setIsSaving(false);
-        return;
-      }
-
+  const formik = useFormik({
+    initialValues: initialFormData,
+    validationSchema,
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
-        const response = await dispatch(createPatient(formData)).unwrap(); // Store response
-        console.log("Response from createPatient:", response); // Log the response
-        toast.success("Patient details saved successfully!");
-        setFormData(initialFormData);
+        const response = await dispatch(createPatient(values)).unwrap();
+        toast.success(response?.data?.message || "Patient details saved successfully!");
+        resetForm();
         onClose();
       } catch (error) {
-        toast.error("Failed to save patient details" , error);
+        toast.error(error?.message || "Failed to save patient details");
       } finally {
-        setIsSaving(false);
+        setSubmitting(false);
       }
-    };
+    },
+  });
 
-    const handleInputChange = (field, value) => {
-      if (field === "phonenumber") {
-        value = value.replace(/\D/g, "").slice(0, 10);
-      }
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    };
+  if (!isOpen) return null;
 
-    const inputFields = [
-      { label: "Patient Name", field: "patientname", type: "text", placeholder: "Enter patient name" },
-      { label: "Patient Number", field: "phonenumber", type: "tel", placeholder: "Enter 10-digit number" },
-      { label: "Gender", field: "gender", type: "select", options: ["male", "female", "other"] },
-      { label: "Age", field: "age", type: "number", placeholder: "Enter your age" },
-      { label: "Village Details", field: "village", type: "text", placeholder: "Enter village details (max 60 characters)" },
-      { label: "Email", field: "email", type: "email", placeholder: "Enter email" },
-      { label: "Date of Birth", field: "dob", type: "date" },
-      { label: "Remarks", field: "remarks", type: "text", placeholder: "Enter remarks (max 30 characters)" },
-    ];
-
-    return (
-      <div className="fixed inset-0 z-50 flex justify-end items-center">
-      
-        <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
-
-        <div className="relative w-[400px] h-[calc(100%-40px)] bg-white rounded-l-3xl rounded-r-3xl shadow-lg p-6 overflow-y-auto mr-5 mt-5 mb-5">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
-            disabled={isSaving}
-          >
-            ✕
-          </button>
-
-          <h2 className="text-2xl font-semibold text-[#FF7B54]">Add Patient</h2>
-
-          <form className="mt-4" onSubmit={handleSubmit}>
-            {inputFields.map(({ label, field, type, placeholder, options }) => (
-              <div key={field} className="mb-4 relative">
-                <label className="block text-gray-600 font-medium mb-2">{label}</label>
-
-                {type === "select" ? (
-                  <select
-                    value={formData[field]}
-                    onChange={(e) => handleInputChange(field, e.target.value)}
-                    className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black"
-                    disabled={isSaving}
-                  >
-                    <option value="">Select {label}</option>
-                    {options.map((option) => (
-                      <option key={option} value={option.toLowerCase()}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type={type}
-                    value={formData[field]}
-                    onChange={(e) => handleInputChange(field, e.target.value)}
-                    className="w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black pr-12"
-                    placeholder={placeholder}
-                    disabled={isSaving}
-                  />
-                )}
-
-                {formData[field] && type !== "select" && (
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange(field, "")}
-                    className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
-                    disabled={isSaving}
-                  >
-                    <img src={cancelIcon} alt="cancel" className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-            ))}
-
-            <button
-              type="submit"
-              className="w-full bg-[#FF7B54] text-white p-3 rounded-md hover:bg-[#e76a48] transition disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8H4z"
-                    ></path>
-                  </svg>
-                  Saving...
-                </span>
-              ) : (
-                "Save Patient"
-              )}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
+  const handlePhoneNumberChange = (e) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+    formik.setFieldValue("phonenumber", value);
   };
+
+
+  if (!isOpen) return null;
+
+
+
+  const inputFields = [
+    { label: "Patient Name", field: "patientname", type: "text", placeholder: "Enter patient name" },
+    { label: "Patient Number", field: "phonenumber", type: "tel", placeholder: "Enter 10-digit number" },
+    { label: "Gender", field: "gender", type: "select", options: ["male", "female", "other"] },
+    { label: "Age", field: "age", type: "number", placeholder: "Enter your age" },
+    { label: "Village Details", field: "village", type: "text", placeholder: "Enter village details (max 60 characters)" },
+    { label: "Email", field: "email", type: "email", placeholder: "Enter email" },
+    { label: "Date of Birth", field: "dob", type: "date" },
+    { label: "Remarks", field: "remarks", type: "text", placeholder: "Enter remarks (max 30 characters)" },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end items-center">
+    <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
+
+    <div className="relative w-[400px] h-[calc(100%-40px)] bg-white rounded-l-3xl rounded-r-3xl shadow-lg p-6 overflow-y-auto mr-5 mt-5 mb-5">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+        disabled={formik.isSubmitting}
+      >
+        ✕
+      </button>
+
+      <h2 className="text-2xl font-semibold text-[#FF7B54]">Add Patient</h2>
+
+      <form className="mt-4" onSubmit={formik.handleSubmit}>
+        {inputFields.map(({ label, field, type, placeholder, options }) => (
+          <div key={field} className="mb-4 relative">
+            <label className="block text-gray-600 font-medium mb-2">{label}</label>
+
+            {type === "select" ? (
+              <select
+                name={field}
+                value={formik.values[field]}
+                onChange={formik.handleChange}
+                className={`w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black ${
+                  formik.touched[field] && formik.errors[field] ? "border-red-500" : ""
+                }`}
+                disabled={formik.isSubmitting}
+              >
+                <option value="">Select {label}</option>
+                {options.map((option) => (
+                  <option key={option} value={option.toLowerCase()}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={type}
+                name={field}
+                value={formik.values[field]}
+                onChange={field === "phonenumber" ? handlePhoneNumberChange : formik.handleChange}
+                className={`w-full p-2 border bg-[#F4F4F4] h-[52px] rounded-[13px] focus:outline-none focus:border-black ${
+                  formik.touched[field] && formik.errors[field] ? "border-red-500" : ""
+                }`}
+                placeholder={placeholder}
+                disabled={formik.isSubmitting}
+              />
+            )}
+
+            {/* Inline Error Message */}
+            {formik.touched[field] && formik.errors[field] && (
+              <p className="text-red-500 text-sm mt-1">{formik.errors[field]}</p>
+            )}
+
+            {formik.values[field] && type !== "select" && (
+              <button
+                type="button"
+                onClick={() => formik.setFieldValue(field, "")}
+                className="absolute top-14 right-4 transform -translate-y-1/2 text-black"
+                disabled={formik.isSubmitting}
+              >
+                <img src={cancelIcon} alt="cancel" className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        ))}
+
+        <button
+          type="submit"
+          className="w-full bg-[#FF7B54] text-white p-3 rounded-md hover:bg-[#e76a48] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={formik.isSubmitting}
+        >
+          {formik.isSubmitting ? (
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+              Saving...
+            </span>
+          ) : (
+            "Save Patient"
+          )}
+        </button>
+      </form>
+    </div>
+  </div>
+  );
+};
   export default PatientList; 

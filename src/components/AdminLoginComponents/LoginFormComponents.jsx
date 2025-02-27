@@ -3,8 +3,8 @@ import { InputField } from "../common/InputFiled/InputFiled";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-hot-toast";
+
 import useAuth from "../../hooks/useAuth";
 const LoginFormComponents = () => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const LoginFormComponents = () => {
     e.preventDefault();
     const result = await dispatch(loginUser(formData));
     if (loginUser.fulfilled.match(result)) {
-      toast.success("Login Successful!", { position: "top-right" });
+      toast.success("Login Successful!");
       login(result?.payload)
       setTimeout(() => {
         navigate("/dashboard");

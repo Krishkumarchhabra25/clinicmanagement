@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import cancelIcon from "../../../assets/cancel.png";
@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchPatientDetails, UpdatePatientsDetailsData } from "../../../redux/slices/patinetSlice";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { notifyError, notifySuccess } from "../../common/ToastCommon";
 
 export default function PatientDetailsComponent() {
   const [activeTab, setActiveTab] = useState("Patient Information");
@@ -63,17 +64,18 @@ export default function PatientDetailsComponent() {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      await dispatch(
+  const response =    await dispatch(
         UpdatePatientsDetailsData({
           patientId: patientsDetails._id,
           updatedData: values,
         })
       ).unwrap();
-      toast.success("Update successfully!");
+      
+      toast.success( response?.data?.message || "Update successfully!" ,"update-success");
       navigate("/PatientRecord");
     } catch (error) {
       console.error("Update failed:", error);
-      toast.error("Update failed!");
+      toast.error(error?.message || "Update failed!", "update-failed");
     } finally {
       setIsSaving(false);
       setIsEditMode(false);

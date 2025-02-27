@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import cancelIcon from "../../assets/cancel.png";
 import { useLocation } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { getClinicDetails, updateAddress, updateBasicInfo } from '../../redux/slices/clinicSlice';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -331,7 +331,6 @@ const ClinicProfileSetting = () => {
         )}
       </Formik>
 
-      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
