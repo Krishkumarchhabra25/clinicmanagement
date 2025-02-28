@@ -8,6 +8,7 @@ import SupportSlice from "./slices/supportSlice"
 import SendOtpSlice from "./slices/SendotpSlice"
 import VerifyOtpSlice from "./slices/verifyOtp"
 import ChangePassword from "./slices/changePassword"
+import DashboardSlice from "./slices/DashboardSlice"
 import Cookies from "js-cookie";
 
 const preloadedState = {
@@ -28,7 +29,8 @@ export const store = configureStore({
     support:SupportSlice,
     sendotp:SendOtpSlice,
     verifyOtp:VerifyOtpSlice,
-    changePassword:ChangePassword
+    changePassword:ChangePassword,
+    dashboard:DashboardSlice
   },
    preloadedState, 
    middleware: (getDefaultMiddleware) =>

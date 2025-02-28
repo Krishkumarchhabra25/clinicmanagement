@@ -361,14 +361,7 @@ export default function PatientDetailsComponent() {
               type="date"
               className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
             />
-            {field.value && (
-              <img
-                src={cancelIcon}
-                alt="Clear"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                onClick={() => form.setFieldValue("registrationDate", "")}
-              />
-            )}
+          
           </div>
         )}
       </Field>
@@ -390,14 +383,7 @@ export default function PatientDetailsComponent() {
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
-            {field.value && (
-              <img
-                src={cancelIcon}
-                alt="Clear"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                onClick={() => form.setFieldValue("gender", "")}
-              />
-            )}
+      
           </div>
         )}
       </Field>

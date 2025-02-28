@@ -44,12 +44,19 @@ const ResetPasswordComponent = () => {
     if (loading || isSubmitting) return; // Prevent multiple submissions
     setIsSubmitting(true);
     try {
-      await dispatch(changePasswordBeforeLogin(values));
+      const response = await dispatch(changePasswordBeforeLogin(values)).unwrap(); // Unwrap to get response
+      if (response.success) {
+        toast.success("Password changed successfully!");
+        navigate("/login")
+      } else {
+        toast.error(response.message || "Something went wrong!");
+      }
+    } catch (error) {
+      toast.error(error?.message || "An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false); // Reset submission state
     }
   };
-
   return (
     <>
       <Formik

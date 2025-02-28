@@ -179,7 +179,7 @@ export const SupportProfileSetting = () => {
           ) :(
 
           <div>
-            <h1>No Permission granted</h1>
+            <h1>""</h1>
           </div>
            )}
      
