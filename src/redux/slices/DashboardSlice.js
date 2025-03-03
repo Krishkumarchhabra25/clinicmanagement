@@ -6,7 +6,7 @@ export const fetchDashboardStats = createAsyncThunk(
   "patients/fetchStats",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("http://localhost:4000/patient/stats");
+      const response = await axiosInstance.get("/patient/stats");
       return response.data.data; // Extract data object
     } catch (error) {
       return rejectWithValue(error.response?.data || "Something went wrong");
