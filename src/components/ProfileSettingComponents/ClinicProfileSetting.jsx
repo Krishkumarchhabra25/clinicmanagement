@@ -57,24 +57,17 @@ const ClinicProfileSetting = () => {
   const handleImageUpload = (e, setFieldValue, fieldName) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    // Validate file type and size
     if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
-      toast.error("Only JPG, JPEG, and PNG files are allowed");
+      toast.error('Only JPG, JPEG, and PNG files are allowed');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      toast.error("File size must be less than 5MB");
-      return;
-    }
-
     const reader = new FileReader();
     reader.onloadend = () => {
       setFieldValue(fieldName, reader.result);
     };
     reader.readAsDataURL(file);
   };
-  
+
   // Helper: Render a Formik field (with optional file upload for images)
   const renderFormikField = (formikProps, name, label, placeholder, type = "text", isImage = false) => {
     const { values, setFieldValue } = formikProps;
@@ -169,17 +162,13 @@ const ClinicProfileSetting = () => {
         enableReinitialize
         validationSchema={basicInfoValidationSchema}
         onSubmit={(values, { setSubmitting }) => {
-          console.log("Submitting Values:", values); // Log form data before sending
-        
           dispatch(updateBasicInfo(values))
             .unwrap()
             .then(() => {
-              console.log("Update Success");
               setEditModes((prev) => ({ ...prev, basicInfo: false }));
               toast.success("Basic Information updated successfully!", { toastId: "success-message" });
             })
-            .catch((err) => {
-              console.error("Update Failed:", err);
+            .catch(() => {
               toast.error("Failed to update Basic Information");
             })
             .finally(() => setSubmitting(false));

@@ -3,8 +3,8 @@ import Cookies from "js-cookie";
 
 const API_URL =
   import.meta.env.MODE === "development"
-    ? "http://localhost:4000"
-    : "https://clinicmanagement-backend-12ng.vercel.app/";
+    ? "https://clinicmanagement-backend.vercel.app/"
+    : "https://clinicmanagement-backend.vercel.app/";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
 });
 
 // Set token from cookies on load
-const token = Cookies.get("token");
+const token = localStorage.getItem("token");
 if (token) {
   axiosInstance.defaults.headers.common.Authorization = `Bearer ${token}`;
 }

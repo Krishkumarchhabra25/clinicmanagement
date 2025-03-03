@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
-import TimePicker from "react-time-picker";
-import "react-time-picker/dist/TimePicker.css";
-import "react-clock/dist/Clock.css";
+import DatePicker from 'react-datepicker'; // Correct import
+import 'react-datepicker/dist/react-datepicker.css'; // Import CSS
 import Switch from "react-switch";
 import Template from "../../components/common/Template";
 import { FaClock } from "react-icons/fa";
@@ -93,67 +92,38 @@ const DaySchedule = ({ index, schedule, updateSchedule }) => {
 };
 
 const TimeSlot = ({ startTime, endTime, updateSchedule }) => {
-  // Helper function to convert 24-hour format to 12-hour format with AM/PM
-  const convertTo12HourFormat = (time) => {
-    if (!time) return ""; // Return empty string if no time is provided
-
-    const [hour, minute] = time.split(":");
-    let period = "AM";
-    let hour12 = parseInt(hour, 10);
-
-    if (hour12 >= 12) {
-      period = "PM";
-      if (hour12 > 12) hour12 -= 12;
-    } else if (hour12 === 0) {
-      hour12 = 12; // Handle midnight (00:00)
-    }
-
-    return `${hour12}:${minute} ${period}`;
+  // Convert API time (HH:mm) to Date object
+  const parseTime = (timeString) => {
+    if (!timeString) return null;
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    return date;
   };
 
-  // Helper function to convert 12-hour format back to 24-hour format
-  const convertTo24HourFormat = (time) => {
-    if (!time) return ""; // Return empty string if no time is provided
-
-    const [timePart, period] = time.split(" ");
-    const [hour, minute] = timePart.split(":");
-    let hour24 = parseInt(hour, 10);
-
-    if (period === "PM" && hour24 < 12) {
-      hour24 += 12;
-    } else if (period === "AM" && hour24 === 12) {
-      hour24 = 0; // Handle midnight (12:00 AM)
-    }
-
-    return `${hour24.toString().padStart(2, "0")}:${minute}`;
-  };
-
-  const handleTimeChange = (key, value) => {
-    if (key === "startTime" && endTime && value >= endTime) {
-      alert("Start time must be before end time.");
-      return;
-    }
-    if (key === "endTime" && startTime && value <= startTime) {
-      alert("End time must be after start time.");
-      return;
-    }
-
-    // Convert the selected time back to 24-hour format before updating
-    const time24Hour = convertTo24HourFormat(value);
-    updateSchedule(key, time24Hour);
+  // Convert Date object back to API format (HH:mm)
+  const formatTime = (date) => {
+    if (!date) return '';
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
   };
 
   return (
     <div className="flex flex-wrap gap-6 justify-center items-center mt-3.5 w-full text-base text-stone-950 max-md:max-w-full">
       <div className="flex flex-col flex-1 shrink justify-center self-stretch px-2.5 py-3.5 my-auto rounded-xl basis-0 bg-transparent min-h-[52px] border border-gray-300">
         <div className="flex items-center gap-2">
-          <TimePicker
-            onChange={(value) => handleTimeChange("startTime", value)}
-            value={convertTo12HourFormat(startTime) || "09:00 AM"} // Default to 09:00 AM if no startTime is provided
-            disableClock
-            clearIcon={null}
-            className="w-full bg-transparent outline-none border-none text-sm"
-            format="h:mm a" // Display time in 12-hour format with AM/PM
+          <DatePicker
+            selected={parseTime(startTime)}
+            onChange={(time) => updateSchedule("startTime", formatTime(time))}
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={15}
+            timeCaption="Time"
+            dateFormat="h:mm aa"
+            className="w-full bg-transparent outline-none border-none text-sm [&>input]:border-none"
+            placeholderText="09:00 AM"
           />
           <FaClock className="text-gray-500" />
         </div>
@@ -161,13 +131,19 @@ const TimeSlot = ({ startTime, endTime, updateSchedule }) => {
       <div className="self-stretch my-auto text-gray-800">To</div>
       <div className="flex flex-col flex-1 shrink justify-center self-stretch px-2.5 py-3.5 my-auto rounded-xl basis-0 bg-transparent min-h-[52px] border border-gray-300">
         <div className="flex items-center gap-2">
-          <TimePicker
-            onChange={(value) => handleTimeChange("endTime", value)}
-            value={convertTo12HourFormat(endTime) || "05:00 PM"} // Default to 05:00 PM if no endTime is provided
-            disableClock
-            clearIcon={null}
-            className="w-full bg-transparent outline-none border-none text-sm"
-            format="h:mm a" // Display time in 12-hour format with AM/PM
+          <DatePicker
+            selected={parseTime(endTime)}
+            onChange={(time) => updateSchedule("endTime", formatTime(time))}
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={15}
+            timeCaption="Time"
+            dateFormat="h:mm aa"
+            className="w-full bg-transparent outline-none border-none text-sm [&>input]:border-none"
+            placeholderText="05:00 PM"
+            injectTimes={[
+              new Date().setHours(17, 0) // Default PM time
+            ]}
           />
           <FaClock className="text-gray-500" />
         </div>

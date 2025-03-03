@@ -30,6 +30,7 @@ export default function PatientDetailsComponent() {
   const initialValues = {
     patientname: patientsDetails?.patientname || "",
     phonenumber: patientsDetails?.phonenumber || "",
+    remarks: patientsDetails?.remarks || "",
     gender: patientsDetails?.gender || "",
     age: patientsDetails?.age || "",
     village: patientsDetails?.village || "",
@@ -45,6 +46,7 @@ export default function PatientDetailsComponent() {
   // Yup validation schema
   const validationSchema = Yup.object().shape({
     patientname: Yup.string().trim().required("Patient name is required"),
+    remarks: Yup.string().trim().required("remarks is required"),
     phonenumber: Yup.string()
       .required("Phone number is required")
       .matches(/^\d{10}$/, "Phone number must be 10 digits"),
@@ -353,19 +355,27 @@ export default function PatientDetailsComponent() {
     {/* Registration Date */}
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
       <label className="text-gray-600 font-medium mb-1 pl-2">Registration Date</label>
-      <Field name="registrationDate">
+      <Field name="remarks">
         {({ field, form }) => (
           <div className="relative w-full">
-            <input
-              {...field}
-              type="date"
-              className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+          <input
+            {...field}
+            type="text"
+            placeholder="Enter patient name"
+            className="w-full p-3 pr-12 border bg-[#F4F4F4] rounded-[13px] focus:outline-none focus:border-black"
+          />
+          {field.value && (
+            <img
+              src={cancelIcon}
+              alt="Clear"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+              onClick={() => form.setFieldValue("remarks", "")}
             />
-          
-          </div>
+          )}
+        </div>
         )}
       </Field>
-      <ErrorMessage name="registrationDate" component="div" className="text-red-500 text-xs mt-1" />
+      <ErrorMessage name="remarks" component="div" className="text-red-500 text-xs mt-1" />
     </div>
 
     {/* Gender */}
@@ -502,7 +512,7 @@ export default function PatientDetailsComponent() {
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
       <label className="text-gray-600 font-medium mb-1 pl-2">Registration Date</label>
       <div className="p-3  rounded-[13px] text-black w-full">
-        {patientsDetails?.registrationDate || "N/A"}
+        {patientsDetails?.remarks || "N/A"}
       </div>
     </div>
 
