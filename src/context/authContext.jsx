@@ -33,8 +33,7 @@ export const AuthProvider = ({ children }) => {
       console.log('admin', admin);
       localStorage.setItem('token', token);
       localStorage.setItem('admin', JSON.stringify(admin));
-      Cookie.set('token', token, { path: '/', secure: true, sameSite: 'Strict' });
-      Cookie.set('admin', JSON.stringify(admin), { path: '/', secure: true, sameSite: 'Strict' });
+
       setToken(token);
       setAdmin(admin);
     } catch (error) {
@@ -45,8 +44,7 @@ export const AuthProvider = ({ children }) => {
   // Function to log out and clear cookies
   const logout = () => {
     try {
-      Cookie.remove('token', { path: '/' });
-      Cookie.remove('admin', { path: '/' });
+
   
     localStorage.removeItem("role");
     localStorage.removeItem("token");
@@ -58,6 +56,7 @@ export const AuthProvider = ({ children }) => {
     }
     setToken(null);
     setAdmin(null);
+    
   };
 
   return (

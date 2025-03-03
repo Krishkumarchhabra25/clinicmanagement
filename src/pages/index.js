@@ -9,3 +9,4 @@ export {default as PatientRecordDetails} from "./PatientRecord/patientRecordDeta
 export {default as AdminChangePassword} from "./AdminChangePassword/AdminChangePassword"
 export {default as ResetPassword} from "./ResetPassword/ResetPassword"
 export {default as ResetPasswordAfterLogin} from "./ResetPassword/ResetPasswordAfterLogin"
+export {default as NotFound} from  "./NotFound/NotFound"

@@ -63,7 +63,9 @@ const Navigation = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/login", { replace: true });
+    window.location.reload(); // Forces a fresh state
+
   };
 
   return (
