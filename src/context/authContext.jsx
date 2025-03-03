@@ -10,20 +10,24 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = () => {
-      console.log("Checking cookies...", document.cookie);
-      const storedToken = Cookie.get('token');
-      const storedAdmin = Cookie.get('admin');
-      console.log('storedToken',storedToken);
-      console.log('storedAdmin',storedAdmin);
-      if (storedToken && storedAdmin) {
-        setToken(storedToken);
-        setAdmin(JSON.parse(storedAdmin));
+      try {
+        const storedToken = localStorage.getItem('token');
+        const storedAdmin = localStorage.getItem('admin');
+  
+        // Basic validation
+        if (storedToken?.length > 10 && storedAdmin) { // Simple token length check
+          setToken(storedToken);
+          setAdmin(JSON.parse(storedAdmin));
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        localStorage.clear();
       }
       setLoading(false);
     };
+    
     fetchUser();
   }, []);
-
   // Function to log in and store cookie data
   const login = (response) => {
     try {
