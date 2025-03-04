@@ -5,9 +5,9 @@ const CHANGE_PASSWORD_AFTER_LOGIN_URL = "/admin/change-support-password";
 
 export const changePasswordAfterLoginApi = createAsyncThunk(
   "auth/changeSupportPasswordAfterLogin",
-  async ({ email, newPassword }, { rejectWithValue, getState }) => {
+  async ({ email, newPassword }, { rejectWithValue }) => { // Removed getState
     try {
-      const token = getState().auth.token;
+      const token = localStorage.getItem("token"); // Get token from localStorage
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,

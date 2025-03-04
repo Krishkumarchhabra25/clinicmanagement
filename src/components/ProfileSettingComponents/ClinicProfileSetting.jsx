@@ -7,11 +7,9 @@ import { getClinicDetails, updateAddress, updateBasicInfo } from '../../redux/sl
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-// Validation schemas defined at the top
 const basicInfoValidationSchema = Yup.object({
-  clinicName: Yup.string().required("Clinic Name is required"),
+  clinicName: Yup.string().trim().required("Clinic Name is required"),
   tagline: Yup.string().required("Tagline is required"),
-  companyLogo: Yup.string().required("Company Logo is required"),
 });
 
 const addressInfoValidationSchema = Yup.object({
@@ -61,11 +59,8 @@ const ClinicProfileSetting = () => {
       toast.error('Only JPG, JPEG, and PNG files are allowed');
       return;
     }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFieldValue(fieldName, reader.result);
-    };
-    reader.readAsDataURL(file);
+    // Store the raw file for upload
+    setFieldValue(fieldName, file);
   };
 
   // Helper: Render a Formik field (with optional file upload for images)
@@ -89,11 +84,20 @@ const ClinicProfileSetting = () => {
                 className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-[#FF7B54] transition-colors"
               >
                 {values[name] ? (
-                  <img
-                    src={values[name]}
-                    alt="Preview"
-                    className="w-full h-full object-cover rounded-lg"
-                  />
+                  // Check if the field is a File or a URL string
+                  typeof values[name] === "object" ? (
+                    <img
+                      src={URL.createObjectURL(values[name])}
+                      alt="Preview"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <img
+                      src={values[name]}
+                      alt="Preview"
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  )
                 ) : (
                   <span className="text-gray-400 text-center text-sm">Click to upload</span>
                 )}
@@ -130,7 +134,7 @@ const ClinicProfileSetting = () => {
         <div className="w-32 h-32 border rounded-lg overflow-hidden">
           {value ? (
             <img
-              src={value}
+              src={typeof value === "object" ? URL.createObjectURL(value) : value}
               alt={label}
               className="w-full h-full object-cover"
             />
@@ -162,7 +166,18 @@ const ClinicProfileSetting = () => {
         enableReinitialize
         validationSchema={basicInfoValidationSchema}
         onSubmit={(values, { setSubmitting }) => {
-          dispatch(updateBasicInfo(values))
+          // Trim clinicName before submission
+          const trimmedClinicName = values.clinicName.trim();
+          console.log('Form values:', values);
+          const formData = new FormData();
+
+          formData.append('clinicName', trimmedClinicName);
+          formData.append('tagline', values.tagline);
+          if (values.companyLogo instanceof File) {
+            formData.append('logo', values.companyLogo);
+          }
+          
+          dispatch(updateBasicInfo(formData))
             .unwrap()
             .then(() => {
               setEditModes((prev) => ({ ...prev, basicInfo: false }));
@@ -231,7 +246,7 @@ const ClinicProfileSetting = () => {
                   {renderDisplayField("Tagline", formikProps.values.tagline)}
                   {renderDisplayField("Company Logo", formikProps.values.companyLogo, true)}
                 </>
-              )}
+              )}  
             </div>
           </Form>
         )}

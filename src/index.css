@@ -58,3 +58,10 @@ code {
   outline: none;
   background: transparent;
 }
+
+.menu-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 27px;
+}

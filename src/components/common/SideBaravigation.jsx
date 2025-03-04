@@ -117,9 +117,12 @@ const Navigation = () => {
                 }
               />
             )}
-            <p className="text-[18px]" style={{ fontFamily: "Outfit-400" }}>
-              {menu.title}
-            </p>
+            <p
+            style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 400, fontSize: "18px", lineHeight: "27px" }}
+          >
+            {menu.title}
+          </p>
+          
             {isActive && (
               <img
                 src={starIcon}

@@ -9,15 +9,19 @@ export const AddBasicInfoOfClinic = async(basicInfoData)=>{
     }
 }
 
-export const updateBasicInfoClinic = async(updatebasicInfoData)=>{
+export const updateBasicInfoClinic = async (updateBasicInfoData) => {
     try {
-        const response = await axiosInstance.put('clinic/update-basic-info', updatebasicInfoData);
-        return response.data
+      const response = await axiosInstance.put('clinic/update-basic-info', updateBasicInfoData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
     } catch (error) {
-        throw error.response?.data || "Something went wrong"
-
+      throw error.response?.data || "Something went wrong";
     }
-}
+  };
+  
 export const AddAddressInfoOfClinic = async(AddressInfoData)=>{
     try {
          const response = await axiosInstance.post(`/clinic/add-address` , AddressInfoData);
