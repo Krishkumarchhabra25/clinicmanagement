@@ -30,7 +30,6 @@ const LoginFormComponents = () => {
     const result = await dispatch(loginUser(formData));
     if (loginUser.fulfilled.match(result)) {
       toast.success("Login Successful!");
-      console.log("Login payload:", result.payload); // Debugging
       login(result?.payload);
       navigate("/");
     } else if (loginUser.rejected.match(result)) {

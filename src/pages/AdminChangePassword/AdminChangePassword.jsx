@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import ChnagePsaswordComponentes from "../../components/AdminChangePasswordComponents/ChangePasswordComponents"
 import { ArrowLeft } from "lucide-react"; // Importing a back arrow icon
 import ChangePasswordComponent from "../../components/AdminChangePasswordComponents/ChangePasswordComponents";
 const AdminChangePassword = () => {

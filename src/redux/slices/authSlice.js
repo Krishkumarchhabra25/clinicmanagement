@@ -9,7 +9,6 @@ export const loginUser = createAsyncThunk(
       if (response.data.success) {
         const token = response.data.token;
         const admin = response.data.admin;
-        console.log('API login successful');
         localStorage.setItem("permissions", JSON.stringify(admin.permissions));
         localStorage.setItem("role", admin.role);
         localStorage.setItem("name" , admin?.username)

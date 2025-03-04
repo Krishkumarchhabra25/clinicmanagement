@@ -9,12 +9,9 @@
     const { isAuthenticated } = useSelector((state) => state.auth);
     const { token, loading, admin  } = useAuth();
 
-    console.log("tokennnn" , token)
     useEffect(() => {
       if (loading) return; 
       if (token && admin ) {
-        console.log("token came....",token)
-        console.log('camee.............',admin);
         dispatch(setAuthenticated(true));
   
         dispatch(setAdminDetails({admin,token }));

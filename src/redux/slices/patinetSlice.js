@@ -100,16 +100,13 @@ export const fetchSortPatients = createAsyncThunk(
   export const UpdatePatientsDetailsData = createAsyncThunk(
     "patients/UpdatePatientsDetailsData",
     async ({ patientId, updatedData }, { rejectWithValue }) => {
-      console.log("Dispatching update for patient:", patientId, "with data:", updatedData);
       try {
         const response = await updatePatients(patientId, updatedData);
-        console.log("API update response:", response);
         if (response.success) {
           return response.data;
         }
         return rejectWithValue("Failed to update patient");
       } catch (error) {
-        console.error("Error in updatePatients thunk:", error);
         return rejectWithValue(error);
       }
     }
@@ -231,11 +228,9 @@ export const fetchSortPatients = createAsyncThunk(
 
             .addCase(UpdatePatientsDetailsData.pending, (state) => {
               state.loading = true;
-              console.log("UpdatePatientsDetailsData pending...");
             })
             .addCase(UpdatePatientsDetailsData.fulfilled, (state, action) => {
               state.loading = false;
-              console.log("UpdatePatientsDetailsData fulfilled with payload:", action.payload);
               // Update patient list
               state.patinets = state.patinets.map((patient) =>
                 patient._id === action.payload._id ? action.payload : patient

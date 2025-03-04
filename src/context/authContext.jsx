@@ -31,10 +31,7 @@ export const AuthProvider = ({ children }) => {
   // Function to log in and store cookie data
   const login = (response) => {
     try {
-      console.log("Checking response", response);
       const { token, admin } = response;
-      console.log('token', token);
-      console.log('admin', admin);
       localStorage.setItem('token', token);
       localStorage.setItem('admin', JSON.stringify(admin));
 

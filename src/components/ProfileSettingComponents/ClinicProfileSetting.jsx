@@ -168,7 +168,6 @@ const ClinicProfileSetting = () => {
         onSubmit={(values, { setSubmitting }) => {
           // Trim clinicName before submission
           const trimmedClinicName = values.clinicName.trim();
-          console.log('Form values:', values);
           const formData = new FormData();
 
           formData.append('clinicName', trimmedClinicName);

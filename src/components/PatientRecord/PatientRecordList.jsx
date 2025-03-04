@@ -56,7 +56,6 @@ const PatientList = () => {
     const canEdit = patientPermissions.edit;
     const canDelete = patientPermissions.delete;
   
-    console.log("Patient Permissions:", patientPermissions);
   
 
   // Open/close modal for adding a patient

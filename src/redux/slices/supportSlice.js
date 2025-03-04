@@ -64,11 +64,9 @@ const initialState = {
         })
         .addCase(updateSupportPermissionsThunk.fulfilled, (state, action) => {
           state.loading = false;
-          console.log("Redux State Before Update:", state.profile.permissions); // Debugging
           if (state.profile) {
               state.profile.permissions = action.payload.data;
           }
-          console.log("Redux State After Update:", state.profile.permissions); // Debugging
       })
         .addCase(updateSupportPermissionsThunk.rejected, (state, action) => {
           state.loading = false;

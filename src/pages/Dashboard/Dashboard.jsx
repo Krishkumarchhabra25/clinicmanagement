@@ -38,9 +38,7 @@ const Dashboard = () => {
     dispatch(fetchDashboardStats());
   }, [dispatch]);
 
-  console.log("ptoatalpatience",totalPatients)
-  console.log("today pateimnce",todaysPatients)
-  console.log("gender percemntage",genderPercentages)
+  
 
       const navigate = useNavigate();
 

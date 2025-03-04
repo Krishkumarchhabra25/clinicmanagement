@@ -28,7 +28,6 @@ export const sortPatients = async (params)=>{
     });
     return response.data;
   } catch (error) {
-    console.log("error" ,error)
       throw error.response?.data || "Something went wrong"
   }
 }
