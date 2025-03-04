@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 const API_URL =
   import.meta.env.MODE === "development"
-    ? "https://clinicmanagement-backend.vercel.app/"
+    ? "http://localhost:4000"
     : "https://clinicmanagement-backend.vercel.app/";
 
 const axiosInstance = axios.create({

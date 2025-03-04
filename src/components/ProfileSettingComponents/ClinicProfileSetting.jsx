@@ -66,6 +66,7 @@ const ClinicProfileSetting = () => {
   // Helper: Render a Formik field (with optional file upload for images)
   const renderFormikField = (formikProps, name, label, placeholder, type = "text", isImage = false) => {
     const { values, setFieldValue } = formikProps;
+    console.log('values',values)
     return (
       <div className="flex flex-col items-start w-full md:w-[45%] relative">
         <label className="text-gray-600 font-medium mb-1 pl-2">{label}</label>
@@ -161,7 +162,7 @@ const ClinicProfileSetting = () => {
         initialValues={{
           clinicName: basicInfo?.clinicName || "",
           tagline: basicInfo?.tagline || "",
-          companyLogo: basicInfo?.logo?.url || "",
+          companyLogo: basicInfo?.logo || "",
         }}
         enableReinitialize
         validationSchema={basicInfoValidationSchema}
