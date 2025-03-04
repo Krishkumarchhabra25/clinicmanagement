@@ -7,27 +7,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDashboardStats } from "../../redux/slices/DashboardSlice";
+import { PatientModal } from "../../components/PatientRecord/PatientRecordList";
 
-const statsData = [
-  {
-    title: "Appointments",
-    value: "280",
-    action: "View More",
-    icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/a65b94c5f951244c9c3f82e3c6f208908d09e293be0d15bf42b32f3655e15d5b?placeholderIfAbsent=true&apiKey=f1e3303ce7614e739d966e6db8bde094",
-  },
-  {
-    title: "Today's New Patients",
-    value: "5",
-    action: "View List",
-    icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/c1484a8416d3a773ad130c90e5e45778516e3feb26984d414d890a26cf1a7767?placeholderIfAbsent=true&apiKey=f1e3303ce7614e739d966e6db8bde094",
-  },
-  {
-    title: "Total Patients",
-    value: "561",
-    action: "View List",
-    icon: "https://cdn.builder.io/api/v1/image/assets/TEMP/c1484a8416d3a773ad130c90e5e45778516e3feb26984d414d890a26cf1a7767?placeholderIfAbsent=true&apiKey=f1e3303ce7614e739d966e6db8bde094",
-  },
-];
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -38,7 +19,8 @@ const Dashboard = () => {
     dispatch(fetchDashboardStats());
   }, [dispatch]);
 
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
       const navigate = useNavigate();
 
@@ -46,8 +28,20 @@ const Dashboard = () => {
         navigate("/Patientrecord")
       }
 
+         const storedPermissions = localStorage.getItem("permissions");
+    const permissions = storedPermissions ? JSON.parse(storedPermissions) : {};
+    const patientPermissions = permissions.patients || {};
+  
+    // Check for specific patient permissions
+    const canView = patientPermissions.view;
+    const canAdd = patientPermissions.create;
+    const canEdit = patientPermissions.edit;
+    const canDelete = patientPermissions.delete;
       const role = localStorage.getItem("role");
 
+
+      const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
   return (
     <Template>
       <div className="overflow-hidden pr-9 max-md:pr-5">
@@ -63,7 +57,33 @@ const Dashboard = () => {
               {/* Right Side: Add Patients Button and Bell Icon */}
               <div className="flex gap-4 items-center">
                 {/* Add Patients Button */}
-  
+                <div className="flex items-center gap-10">
+                {canAdd === true ? (
+                  <button
+                  className="flex items-center justify-center gap-2 bg-white text-[#FF7B54] font-medium text-[16px] py-[13.5px] px-[20px] rounded-[27px] shadow-md hover:bg-gray-100 transition"
+                  onClick={openModal}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 4.5v15m7.5-7.5h-15"
+                    />
+                  </svg>
+                  Add Patient
+                </button>
+                ) :(
+                  <p>No permission to add patients</p>
+                )}
+                 
+                </div>
 
                 {/* Bell Icon */}
                 <button className="p-3 bg-white rounded-3xl h-[51px] w-[51px] flex items-center justify-center">
@@ -130,6 +150,8 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      {isModalOpen && <PatientModal isOpen={isModalOpen} onClose={closeModal} />}
+
     </Template>
   );
 };

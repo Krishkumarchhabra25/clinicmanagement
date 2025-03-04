@@ -510,7 +510,7 @@ export default function PatientDetailsComponent() {
 
     {/* Registration Date */}
     <div className="flex flex-col items-start w-full md:w-[45%] relative">
-      <label className="text-gray-600 font-medium mb-1 pl-2">Registration Date</label>
+      <label className="text-gray-600 font-medium mb-1 pl-2">Remarks</label>
       <div className="p-3  rounded-[13px] text-black w-full">
         {patientsDetails?.remarks || "N/A"}
       </div>
