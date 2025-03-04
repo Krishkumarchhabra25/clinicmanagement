@@ -12,7 +12,7 @@ const AdminLogin = () => {
             alt="Admin Logo"
             className="object-contain w-[93px] aspect-[0.95]"
           />
-          <div className="mt-5">ADMIN LOGIN</div>
+          <div className="mt-5">ADMIN / SUPPORT LOGIN </div>
         </div>
         <LoginFormComponents />
       </div>

@@ -44,7 +44,6 @@ export function AdminProfileSetting() {
       gender: '',
       age: '',
       email: '',
-      registrationDate: '',
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -91,7 +90,6 @@ export function AdminProfileSetting() {
         dob: profile.personalInfo?.dateOfBirth?.split('T')[0] || '',
         gender: profile.personalInfo?.gender || '',
         email: profile.email || '',
-        registrationDate: '',
       });
     }
   }, [profile]);
@@ -244,13 +242,12 @@ export function AdminProfileSetting() {
 
       {/* Input Fields Section */}
   <div className="flex flex-wrap gap-7 w-full">
-        {renderField('Name', 'patientName', 'Enter patient name')}
-        {renderField('Phone Number', 'patientNumber', 'Enter patient number', 'tel')}
+        {renderField('Name', 'patientName', 'Enter name')}
+        {renderField('Phone Number', 'patientNumber', 'Enter number', 'tel')}
         {renderField('Age', 'age', 'Enter age', 'number')}
         {renderField('Email', 'email', 'Enter email', 'email')}
         {renderField('Village Details', 'villageDetails', 'Enter village details')}
         {renderField('Date of Birth', 'dob', '', 'date')}
-        {renderField('Registration Date', 'registrationDate', '', 'date')}
         {renderField('Gender', 'gender', '', 'select')}
       </div>
     </div>

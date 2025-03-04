@@ -10,3 +10,4 @@ export {default as AdminChangePassword} from "./AdminChangePassword/AdminChangeP
 export {default as ResetPassword} from "./ResetPassword/ResetPassword"
 export {default as ResetPasswordAfterLogin} from "./ResetPassword/ResetPasswordAfterLogin"
 export {default as NotFound} from  "./NotFound/NotFound"
+export {default as SupportChnagePassword} from "./SupportChnagePassword/ChnageSupportPassword"

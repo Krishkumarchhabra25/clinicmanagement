@@ -13,7 +13,7 @@ import { useContext } from "react";
 import AuthContext from "../../context/authContext";
 import starIcon from "../../assets/starframe.png"
 import useAuth from "../../hooks/useAuth";
-
+import profilephoto from "../../assets/Vector.png"
 const Navigation = () => {
   const { admin } = useSelector((state) => state.auth);
   const { logout } = useAuth();
@@ -32,14 +32,14 @@ const Navigation = () => {
       // Only show if the user has permission to view patients
       permission: admin?.permissions?.patients?.view,
     },
-    {
+ /*    {
       id: 6,
       title: "Appointments",
       link: routesKey.APPOINTMENTS,
       icon: AppointmentsIcon,
       // Show if the user has permission to create or edit appointments
       permission: admin?.permissions?.appointments?.create || admin?.permissions?.appointments?.edit,
-    },
+    }, */
     {
       id: 100,
       title: "Availability",
@@ -49,7 +49,7 @@ const Navigation = () => {
       permission: admin?.permissions?.availability?.edit,
     },
     // "Password" and "Profile Setting" are always visible
-    { id: 15, title: "Password", link: routesKey.PASSWORDS, icon: PasswordIcon },
+    /* { id: 15, title: "Password", link: routesKey.PASSWORDS, icon: PasswordIcon }, */
     { id: 16, title: "Profile Setting", link: routesKey.PROFILESETTING, icon: ProfileSettings },
   ];
 
@@ -79,7 +79,7 @@ const Navigation = () => {
     >
       <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden">
         <img
-          src="https://via.placeholder.com/64"
+          src={profilephoto}
           alt="Profile"
           className="w-full h-full object-cover"
         />

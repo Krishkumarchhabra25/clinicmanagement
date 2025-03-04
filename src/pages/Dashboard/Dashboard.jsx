@@ -47,6 +47,9 @@ const Dashboard = () => {
       const handlePatienceList = ()=>{
         navigate("/Patientrecord")
       }
+
+      const role = localStorage.getItem("role");
+
   return (
     <Template>
       <div className="overflow-hidden pr-9 max-md:pr-5">
@@ -92,9 +95,12 @@ const Dashboard = () => {
                   <p className="mt-2 text-lg max-md:text-base">
                     Have a nice day at work! Let's start by reviewing your patients.
                   </p>
-                  <button onClick={handlePatienceList} className="mt-4 px-6 py-2 text-lg font-medium text-red-400 bg-white rounded-lg max-md:w-full">
+                  {role === "admin" && (
+                    <button onClick={handlePatienceList} className="mt-4 px-6 py-2 text-lg font-medium text-red-400 bg-white rounded-lg max-md:w-full">
                     View Patient's Details
                   </button>
+                  )}
+             
                 </div>
 
                 {/* Doctor's Photo */}

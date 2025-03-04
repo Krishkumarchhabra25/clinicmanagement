@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Switch from 'react-switch';
 import { fetchSupportProfile, updateSupportPermissionsThunk } from '../../redux/slices/supportSlice';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 // Toggle component for each permission
 export const PermissionToggle = ({ label, checked = false, onChange }) => (
   <div className="flex justify-between items-center w-full">
@@ -73,6 +74,7 @@ export const SupportProfileSetting = () => {
     { id: 'availability_edit', label: "Edit Availability" },
   ];
 
+  const navigate = useNavigate()
   // Fetch support profile on component mount
   useEffect(() => {
     dispatch(fetchSupportProfile());
@@ -126,9 +128,14 @@ export const SupportProfileSetting = () => {
       return newState;
     });
   };
+  const handleForgotSupportPassword = () => {
+    navigate("/change-support-password");
+
+  }
+
 
   return (
-    <div className="p-6">
+    <div className="p-2">
     <div className="flex items-center justify-between mx-2 mb-6">
     <div className="flex items-center">
       <div className="h-[48px] w-[9px] border-e-2 bg-[#FF7B54]" />
@@ -141,15 +148,23 @@ export const SupportProfileSetting = () => {
         <>
           {/* Profile Information */}
           <div className="flex flex-col mx-2 mb-10 gap-4">
-            <label className="text-gray-600 font-medium mb-1">Username</label>
-            <div className="bg-transparent break-words text-black max-w-[434px] flex items-center">
-              <div className="flex-1">{profile.email}</div>
-            </div>
-            <label className="text-gray-600 font-medium mb-1">Password</label>
-            <div className="bg-transparent break-words text-black max-w-[434px] flex items-center">
-              <div className="flex-1">********</div>
-            </div>
+          <label className="text-gray-600 font-medium mb-1">Username</label>
+          <div className="bg-transparent border-none break-words text-black max-w-[434px] flex justify-between items-center">
+            <div className="flex-1">{profile?.username || "N/A"}</div>
           </div>
+          <label className="text-gray-600 font-medium mb-1">Password</label>
+          <div className="bg-transparent border-none break-words text-black max-w-[434px] flex justify-between items-center">
+            {/* Since password is typically not returned, adjust as needed */}
+            <div className="flex-1">{ "********"}</div>
+          </div>
+          {role === "admin" && (
+            <div >
+            <button onClick={handleForgotSupportPassword} className='text-[14px]'>Forgot Password ?</button> 
+          </div>
+          )}
+        
+        </div>
+  
 
           {/* Access Control Section */}
           {role === "admin" ? (
@@ -179,7 +194,7 @@ export const SupportProfileSetting = () => {
           ) :(
 
           <div>
-            <h1>""</h1>
+            <h1></h1>
           </div>
            )}
      

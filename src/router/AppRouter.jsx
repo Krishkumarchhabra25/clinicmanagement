@@ -99,6 +99,14 @@ const AppRouter = () => {
             </RequireAuth>
           }
         />
+        <Route
+          path={routesKey.CHANGESUPPORTPASSWORD}
+          element={
+            <RequireAuth>
+              <pages.SupportChnagePassword />
+            </RequireAuth>
+          }
+        />
 
         {/* Catch-all Route */}
         <Route

@@ -11,11 +11,11 @@ import { verifyOtp, resetVerification } from "../../redux/slices/verifyOtp";
 const ChangePasswordComponent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   // Redux States
   const { loading: otpLoading, message: otpMessage, error: otpError } = useSelector((state) => state.sendotp);
   const { verifying, verified, message: verifyMessage, error: verifyError } = useSelector((state) => state.verifyOtp);
-  
+
   // Local States
   const [timer, setTimer] = useState(0);
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -94,7 +94,7 @@ const ChangePasswordComponent = () => {
       validationSchema={validationSchema}
       onSubmit={handleVerifyOtp}
     >
-      {({ values }) => (
+      {({ values, isValid, dirty }) => (
         <Form className="flex flex-col mt-10 w-full max-md:max-w-full">
           <div className="flex flex-col gap-4 w-full max-md:max-w-full">
             {/* Email Field */}
@@ -136,7 +136,7 @@ const ChangePasswordComponent = () => {
                 type="button"
                 onClick={() => handleSendOtp(values)}
                 className="gap-2.5 self-stretch px-56 py-3.5 w-full text-lg font-medium text-white bg-red-400 rounded-xl min-h-[52px] max-md:px-5 max-md:max-w-full"
-                disabled={otpLoading || isSubmitting}
+                disabled={!isValid || !dirty || otpLoading || isSubmitting}
               >
                 {otpLoading || isSubmitting ? "Sending..." : "Send OTP"}
               </button>

@@ -94,9 +94,13 @@ const DaySchedule = ({ index, schedule, updateSchedule }) => {
 const TimeSlot = ({ startTime, endTime, updateSchedule }) => {
   // Convert API time (HH:mm) to Date object
   const parseTime = (timeString) => {
-    if (!timeString) return null;
-    const [hours, minutes] = timeString.split(':');
     const date = new Date();
+    if (!timeString) {
+      // Set default time (e.g., 09:00) when no time is provided
+      date.setHours(9, 0, 0, 0);
+      return date;
+    }
+    const [hours, minutes] = timeString.split(':');
     date.setHours(hours);
     date.setMinutes(minutes);
     return date;
@@ -142,7 +146,7 @@ const TimeSlot = ({ startTime, endTime, updateSchedule }) => {
             className="w-full bg-transparent outline-none border-none text-sm [&>input]:border-none"
             placeholderText="05:00 PM"
             injectTimes={[
-              new Date().setHours(17, 0) // Default PM time
+              new Date(new Date().setHours(17, 0)) // Correctly creates a Date object
             ]}
           />
           <FaClock className="text-gray-500" />

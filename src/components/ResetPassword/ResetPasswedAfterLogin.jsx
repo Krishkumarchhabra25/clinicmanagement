@@ -40,11 +40,21 @@ const ResetPasswordAfterLoginComponent = () => {
   const handleSubmit = async (values) => {
     if (loading || isSubmitting) return;
     setIsSubmitting(true);
-    try {
-      await dispatch(changePasswordAfterLogin(values));
-    } finally {
-      setIsSubmitting(false);
-    }
+
+     try {
+          const response = dispatch(changePasswordAfterLogin(values)); // Unwrap to get response
+          if (response.success) {
+            toast.success("Password changed successfully!");
+            navigate("/")
+          } else {
+            toast.error(response.message || "Something went wrong!");
+          }
+        } catch (error) {
+          toast.error(error?.message || "An error occurred. Please try again.");
+        } finally {
+          setIsSubmitting(false); // Reset submission state
+        }
+  
   };
 
   return (
