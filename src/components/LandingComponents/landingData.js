@@ -8,11 +8,11 @@ import {
 } from "lucide-react";
 
 export const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Services", href: "#services" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", sectionId: "home" },
+  { label: "About", sectionId: "about" },
+  { label: "Services", sectionId: "services" },
+  { label: "Testimonials", sectionId: "testimonials" },
+  { label: "Contact", sectionId: "contact" },
 ];
 
 export const HERO_STATS = [

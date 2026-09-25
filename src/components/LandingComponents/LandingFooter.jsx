@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone, Stethoscope } from "lucide-react";
 import { FOOTER_LINKS } from "./landingData";
+import scrollToSection from "./scrollToSection";
 
 const LandingFooter = () => {
   return (
@@ -44,6 +45,7 @@ const LandingFooter = () => {
                   <li key={link}>
                     <a
                       href="#home"
+                      onClick={(event) => scrollToSection(event, "home")}
                       className="text-sm text-slate-400 transition-colors hover:text-teal-400"
                     >
                       {link}

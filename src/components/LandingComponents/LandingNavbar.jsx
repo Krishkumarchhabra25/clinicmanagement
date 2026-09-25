@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, Stethoscope, X } from "lucide-react";
 import { ADMINLOGIN } from "../../constants/routes";
 import { NAV_LINKS } from "./landingData";
+import scrollToSection from "./scrollToSection";
 
 const LandingNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +11,11 @@ const LandingNavbar = () => {
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-100">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-        <a href="#home" className="flex items-center gap-2">
+        <a
+          href="#home"
+          onClick={(event) => scrollToSection(event, "home")}
+          className="flex items-center gap-2"
+        >
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600 text-white">
             <Stethoscope size={20} />
           </span>
@@ -19,9 +24,10 @@ const LandingNavbar = () => {
 
         <ul className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link) => (
-            <li key={link.href}>
+            <li key={link.sectionId}>
               <a
-                href={link.href}
+                href={`#${link.sectionId}`}
+                onClick={(event) => scrollToSection(event, link.sectionId)}
                 className="text-sm font-medium text-slate-600 transition-colors hover:text-teal-600"
               >
                 {link.label}
@@ -39,6 +45,7 @@ const LandingNavbar = () => {
           </Link>
           <a
             href="#contact"
+            onClick={(event) => scrollToSection(event, "contact")}
             className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700"
           >
             Book a demo
@@ -59,10 +66,13 @@ const LandingNavbar = () => {
         <div className="border-t border-slate-100 bg-white px-5 py-4 md:hidden">
           <ul className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
-              <li key={link.href}>
+              <li key={link.sectionId}>
                 <a
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
+                  href={`#${link.sectionId}`}
+                  onClick={(event) => {
+                    scrollToSection(event, link.sectionId);
+                    setIsOpen(false);
+                  }}
                   className="text-sm font-medium text-slate-600"
                 >
                   {link.label}

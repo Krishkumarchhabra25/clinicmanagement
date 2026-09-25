@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CalendarCheck, PlayCircle } from "lucide-react";
 import { ADMINLOGIN } from "../../constants/routes";
 import { HERO_STATS } from "./landingData";
+import scrollToSection from "./scrollToSection";
 
 const HeroSection = () => {
   return (
@@ -36,6 +37,7 @@ const HeroSection = () => {
             </Link>
             <a
               href="#services"
+              onClick={(event) => scrollToSection(event, "services")}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-6 py-3 text-sm font-medium text-slate-700 transition-colors hover:border-teal-300 hover:text-teal-700"
             >
               <PlayCircle size={16} />
