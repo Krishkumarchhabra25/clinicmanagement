@@ -37,7 +37,10 @@ const HeroSection = () => {
             </Link>
             <a
               href="#services"
-              onClick={(event) => scrollToSection(event, "services")}
+              onClick={(event) => {
+                event.preventDefault();
+                scrollToSection("services");
+              }}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-6 py-3 text-sm font-medium text-slate-700 transition-colors hover:border-teal-300 hover:text-teal-700"
             >
               <PlayCircle size={16} />

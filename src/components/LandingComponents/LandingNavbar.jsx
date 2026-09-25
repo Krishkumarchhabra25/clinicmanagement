@@ -13,7 +13,10 @@ const LandingNavbar = () => {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
         <a
           href="#home"
-          onClick={(event) => scrollToSection(event, "home")}
+          onClick={(event) => {
+            event.preventDefault();
+            scrollToSection("home");
+          }}
           className="flex items-center gap-2"
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600 text-white">
@@ -27,7 +30,10 @@ const LandingNavbar = () => {
             <li key={link.sectionId}>
               <a
                 href={`#${link.sectionId}`}
-                onClick={(event) => scrollToSection(event, link.sectionId)}
+                onClick={(event) => {
+                  event.preventDefault();
+                  scrollToSection(link.sectionId);
+                }}
                 className="text-sm font-medium text-slate-600 transition-colors hover:text-teal-600"
               >
                 {link.label}
@@ -45,7 +51,10 @@ const LandingNavbar = () => {
           </Link>
           <a
             href="#contact"
-            onClick={(event) => scrollToSection(event, "contact")}
+            onClick={(event) => {
+              event.preventDefault();
+              scrollToSection("contact");
+            }}
             className="rounded-xl bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700"
           >
             Book a demo
@@ -70,8 +79,9 @@ const LandingNavbar = () => {
                 <a
                   href={`#${link.sectionId}`}
                   onClick={(event) => {
-                    scrollToSection(event, link.sectionId);
+                    event.preventDefault();
                     setIsOpen(false);
+                    scrollToSection(link.sectionId);
                   }}
                   className="text-sm font-medium text-slate-600"
                 >

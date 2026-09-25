@@ -45,7 +45,10 @@ const LandingFooter = () => {
                   <li key={link}>
                     <a
                       href="#home"
-                      onClick={(event) => scrollToSection(event, "home")}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        scrollToSection("home");
+                      }}
                       className="text-sm text-slate-400 transition-colors hover:text-teal-400"
                     >
                       {link}
