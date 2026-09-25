@@ -9,6 +9,7 @@ const AppRouter = () => {
     <Router>
       <Routes>
         {/* Public Routes */}
+        <Route path={routesKey.LANDING} element={<pages.Landing />} />
         <Route
           path={routesKey.ADMINLOGIN}
           element={
