@@ -1,3 +1,4 @@
+export {default as Landing} from "./Landing/Landing"
 export {default as AdminLogin} from "./AdminLogin/AdminLogin"
 export {default as Appointments} from "./Appointments/Appointments"
 export {default as Availability} from "./Availability/Availability"

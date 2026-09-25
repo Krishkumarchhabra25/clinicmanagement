@@ -1,3 +1,4 @@
+export const LANDING="/home"
 export const ADMINLOGIN="/login"
 export const ADMINCHNAGEPASSWORD="/changepassword"
 export const DASHBOARD="/"
